@@ -3,6 +3,19 @@ from datetime import datetime
 from extensions import db
 
 
+class AssetType(db.Model):
+    """资产类型"""
+    __tablename__ = 'asset_type'
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    type_code = db.Column(db.String(50), unique=True, nullable=False)  # 类型编码: network/computer/printer等
+    type_name = db.Column(db.String(50), nullable=False)  # 类型名称: 网络类设备/电脑办公类等
+    icon = db.Column(db.String(50))  # 图标
+    sort_order = db.Column(db.Integer, default=0)  # 排序
+    status = db.Column(db.Integer, default=1)  # 0停用 1启用
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+
 class OwnDevice(db.Model):
     """自有设备（公司自用资产）。
 
