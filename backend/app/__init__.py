@@ -53,6 +53,7 @@ def create_app(config_name=None):
         talisman.init_app(app, **app.config['TALISMAN_OPTIONS'])
 
     configure_jwt(jwt)
+    jwt.init_app(app)  # 注册 JWTManager，触发默认值（cookie name、CSRF 等）
     register_error_handlers(app)
 
     # 业务路由
