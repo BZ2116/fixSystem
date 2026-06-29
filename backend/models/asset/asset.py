@@ -3,6 +3,38 @@ from datetime import datetime
 from extensions import db
 
 
+class OwnDevice(db.Model):
+    """自有设备（公司自用资产）。
+
+    迁移自 source-code/app.py 中 5554-5580 行的原始模型定义。
+    """
+    __tablename__ = 'own_device'
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    asset_no = db.Column(db.String(50), unique=True, nullable=False)
+    device_type = db.Column(db.String(50))
+    device_model = db.Column(db.String(100))
+    serial_number = db.Column(db.String(100))
+    cpu = db.Column(db.String(100))
+    memory = db.Column(db.String(50))
+    hard_disk = db.Column(db.String(100))
+    system = db.Column(db.String(50))
+    system_version = db.Column(db.String(50))
+    accessories = db.Column(db.Text)
+    account = db.Column(db.String(100))
+    password = db.Column(db.String(255))
+    password_remark = db.Column(db.String(255))
+    purchase_date = db.Column(db.Date)
+    warranty_expire = db.Column(db.Date)
+    location = db.Column(db.String(100))
+    user_id = db.Column(db.BigInteger)
+    cost = db.Column(db.Numeric(15, 2), default=0.00)
+    depreciation = db.Column(db.Numeric(15, 2), default=0.00)
+    status = db.Column(db.Integer, default=0)  # 0正常 1维修中 2报废 3外借
+    remark = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+
 class Asset(db.Model):
     """资产台账"""
     __tablename__ = 'asset'
