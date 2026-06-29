@@ -1,0 +1,197 @@
+// 全局样式
+
+// 主题色变量
+:root {
+  --primary-color: #9C27B0;
+  --secondary-color: #E91E63;
+  --bg-color: #FCE4EC;
+  --menu-bg: #4A148C;
+  --text-color: #333333;
+  --border-color: #E1BEE7;
+}
+
+// 全局背景
+body {
+  background-color: var(--bg-color);
+}
+
+// Element Plus 主题覆盖
+.el-button--primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  &:hover {
+    background-color: #7B1FA2;
+    border-color: #7B1FA2;
+  }
+}
+
+.el-menu {
+  background-color: var(--menu-bg);
+  .el-menu-item, .el-sub-menu__title {
+    color: #E1BEE7;
+    &:hover {
+      background-color: #6A1B9A;
+    }
+    &.is-active {
+      color: #FFFFFF;
+      background-color: var(--primary-color);
+    }
+  }
+}
+
+// 表格样式
+.el-table {
+  .el-table__header {
+    background-color: #F3E5F5;
+    th {
+      background-color: #F3E5F5;
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+  }
+}
+
+// 卡片样式
+.el-card {
+  border-color: var(--border-color);
+  .el-card__header {
+    background-color: #F3E5F5;
+    border-bottom-color: var(--border-color);
+    color: var(--primary-color);
+    font-weight: bold;
+  }
+}
+
+// 标签页样式
+.el-tabs {
+  .el-tabs__header {
+    border-bottom-color: var(--border-color);
+  }
+  .el-tabs__item {
+    color: var(--text-color);
+    &.is-active {
+      color: var(--primary-color);
+    }
+  }
+  .el-tabs__active-bar {
+    background-color: var(--primary-color);
+  }
+}
+
+// 分页样式
+.el-pagination {
+  .el-pagination__total, .el-pagination__jump {
+    color: var(--text-color);
+  }
+  .el-pager li.active {
+    background-color: var(--primary-color);
+    color: #fff;
+  }
+}
+
+// 输入框样式
+.el-input__inner:focus {
+  border-color: var(--primary-color);
+}
+
+// 弹窗样式
+.el-dialog__header {
+  background-color: #F3E5F5;
+  border-bottom: 1px solid var(--border-color);
+  .el-dialog__title {
+    color: var(--primary-color);
+  }
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+// 通用工具类
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mb-10 {
+  margin-bottom: 10px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.ml-5 {
+  margin-left: 5px;
+}
+
+.ml-10 {
+  margin-left: 10px;
+}
+
+.mr-5 {
+  margin-right: 5px;
+}
+
+.mr-10 {
+  margin-right: 10px;
+}
+
+// 表格样式优化
+.el-table {
+  th {
+    background-color: #f5f7fa !important;
+    font-weight: bold;
+  }
+}
+
+// 分页样式
+.el-pagination {
+  margin-top: 20px;
+}
+
+// 卡片头部样式
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+
+// 搜索表单样式
+.search-form {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #f5f7fa;
+  border-radius: 4px;
+}

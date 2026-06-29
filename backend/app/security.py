@@ -1,0 +1,135 @@
+"""
+安全相关：JWT 配置、token 黑名单、文件上传白名单。
+"""
+import os
+from uuid import uuid4
+from flask import jsonify, g, request
+
+# extensions 在 backend/ 根目录（不在 backend/app/ 下）
+from extensions import jwt, redis_client  # runtime resolved via sys.path
+
+REVOKED_JTI_KEY = 'jwt:revoked:{}'
+
+
+def configure_jwt(jwt_instance):
+    """注册 JWT 回调：撤销检查、错误响应。"""
+
+    @jwt_instance.token_in_blocklist_loader
+    def check_revoked(_jwt_header, jwt_payload):
+        jti = jwt_payload['jti']
+        if redis_client is None:
+            return False
+        try:
+            return bool(redis_client.exists(REVOKED_JTI_KEY.format(jti)))
+        except Exception:
+            return False
+
+    @jwt_instance.revoked_token_loader
+    def revoked_response(_jwt_header, _jwt_payload):
+        return jsonify({'code': 401, 'message': '登录已失效，请重新登录'}), 401
+
+    @jwt_instance.expired_token_loader
+    def expired_response(_jwt_header, _jwt_payload):
+        return jsonify({'code': 401, 'message': '登录已过期，请重新登录'}), 401
+
+    @jwt_instance.unauthorized_loader
+    def missing_token_response(reason):
+        return jsonify({'code': 401, 'message': '未登录或登录已过期'}), 401
+
+    @jwt_instance.invalid_token_loader
+    def invalid_token_response(reason):
+        return jsonify({'code': 401, 'message': 'token 无效'}), 401
+
+
+def revoke_token(jwt_payload: dict):
+    """把 jti 加入 redis 黑名单，过期时间与 token TTL 一致。"""
+    jti = jwt_payload['jti']
+    exp = jwt_payload.get('exp')
+    if redis_client is None:
+        return
+    ttl = max(60, int(exp - __import__('time').time())) if exp else 7 * 24 * 3600
+    redis_client.setex(REVOKED_JTI_KEY.format(jti), ttl, '1')
+
+
+# ===================== 文件上传白名单 =====================
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'xlsx', 'xls', 'csv'}
+ALLOWED_MIME = {
+    'image/png', 'image/jpeg', 'image/gif',
+    'application/pdf',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/csv',
+}
+
+# 文件 magic number（前 4-8 字节）
+MAGIC_SIGNATURES = [
+    (b'\x89PNG\r\n\x1a\n', 'png'),
+    (b'\xff\xd8\xff', 'jpg'),  # JPEG
+    (b'GIF87a', 'gif'),
+    (b'GIF89a', 'gif'),
+    (b'%PDF', 'pdf'),
+    (b'PK\x03\x04', 'xlsx'),  # ZIP / OOXML
+    (b'\xd0\xcf\x11\xe0', 'xls'),  # OLE2
+]
+
+
+def safe_save(file_storage, target_dir: str) -> str:
+    """安全保存上传文件，返回保存的文件名。
+
+    校验：
+    1. 扩展名白名单
+    2. MIME 白名单
+    3. 文件内容 magic number
+    4. UUID 重命名（避免路径穿越）
+    """
+    if not file_storage or file_storage.filename == '':
+        raise ValueError('empty file')
+
+    ext = file_storage.filename.rsplit('.', 1)[-1].lower() if '.' in file_storage.filename else ''
+    if ext not in ALLOWED_EXTENSIONS:
+        raise ValueError(f'extension not allowed: {ext}')
+
+    mimetype = (file_storage.mimetype or '').lower()
+    if mimetype not in ALLOWED_MIME:
+        raise ValueError(f'mime not allowed: {mimetype}')
+
+    head = file_storage.stream.read(8)
+    file_storage.stream.seek(0)
+    if not _match_magic(head, ext):
+        raise ValueError('file content does not match extension')
+
+    safe_name = f'{uuid4().hex}.{ext}'
+    os.makedirs(target_dir, exist_ok=True)
+    file_storage.save(os.path.join(target_dir, safe_name))
+    return safe_name
+
+
+def _match_magic(head: bytes, ext: str) -> bool:
+    for sig, sig_ext in MAGIC_SIGNATURES:
+        if head.startswith(sig):
+            return sig_ext == ext
+    return False
+
+
+# ===================== 权限装饰器 =====================
+
+from functools import wraps
+from flask_jwt_extended import verify_jwt_in_request, get_jwt
+
+
+def permission(*required_codes: str):
+    """权限装饰器：要求 JWT claims 中包含指定 permission code。"""
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            verify_jwt_in_request()
+            claims = get_jwt()
+            user_perms = claims.get('permissions', [])
+            if '*' in user_perms:
+                return fn(*args, **kwargs)
+            if not any(code in user_perms for code in required_codes):
+                return jsonify({'code': 403, 'message': '无权限'}), 403
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
