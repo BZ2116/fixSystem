@@ -17,6 +17,7 @@ def register_blueprints(app: Flask):
     from .quote import bp as quote_bp
     from .office import bp as office_bp
     from .dashboard import bp as dashboard_bp
+    from .inventory import bp as inventory_bp
     app.register_blueprint(setup_bp, url_prefix='/api/setup')
     app.register_blueprint(health_bp)  # /api/health
     app.register_blueprint(auth_bp)  # 自带 url_prefix='/api/auth'
@@ -31,3 +32,5 @@ def register_blueprints(app: Flask):
     app.register_blueprint(quote_bp)  # 自带 url_prefix='/api/quotes'
     app.register_blueprint(office_bp)  # 自带 url_prefix='/api/offices'
     app.register_blueprint(dashboard_bp)  # 自带 url_prefix='/api/dashboard'
+    # inventory 自带各路由的完整路径（/api/inventory/... / /api/warehouses /api/transfer/... /api/cost-adjusts 等）
+    app.register_blueprint(inventory_bp)
