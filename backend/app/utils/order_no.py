@@ -1,4 +1,10 @@
-"""订单号生成器：按业务前缀 + 日期 + 序号。"""
+"""订单号生成器：按业务前缀 + 日期 + 序号。
+
+⚠️ 进程内计数器：gunicorn 多 worker 部署时各 worker 独立计数，可能产生重复号。
+生产环境应改用 DB sequence 或在 number 列上加 unique 约束兜底。本工具仅供：
+1. 单 worker 开发模式
+2. 测试场景（reset_counter 在 setUp/teardown 调用）
+"""
 from datetime import datetime
 import threading
 

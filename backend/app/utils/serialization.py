@@ -31,5 +31,6 @@ def _serialize_value(value):
     if isinstance(value, date):
         return value.strftime('%Y-%m-%d')
     if isinstance(value, Decimal):
-        return float(value)
+        # 用 str 保留精度；float 会丢精度，财务字段不能接受
+        return str(value)
     return value
