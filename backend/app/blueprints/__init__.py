@@ -24,6 +24,7 @@ def register_blueprints(app: Flask):
     from .workorder_actions import bp as workorder_actions_bp
     from .receive import bp as receive_bp
     from .receive_actions import bp as receive_actions_bp
+    from .dispatch import bp as dispatch_bp
     app.register_blueprint(setup_bp, url_prefix='/api/setup')
     app.register_blueprint(health_bp)  # /api/health
     app.register_blueprint(auth_bp)  # 自带 url_prefix='/api/auth'
@@ -52,3 +53,5 @@ def register_blueprints(app: Flask):
     app.register_blueprint(receive_bp)
     # receive_actions 提供 14 个状态机路由（/api/receiveorders/<id>/detect /quote /settle 等）
     app.register_blueprint(receive_actions_bp)
+    # dispatch 自带各路由的完整路径（/api/dispatch/* /api/dispatchorders/export）
+    app.register_blueprint(dispatch_bp)
