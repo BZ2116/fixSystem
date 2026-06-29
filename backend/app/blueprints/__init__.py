@@ -14,6 +14,7 @@ def register_blueprints(app: Flask):
     from .product_unit import bp as product_unit_bp
     from .product_category import bp as product_category_bp
     from .device import bp as device_bp
+    from .quote import bp as quote_bp
     app.register_blueprint(setup_bp, url_prefix='/api/setup')
     app.register_blueprint(health_bp)  # /api/health
     app.register_blueprint(auth_bp)  # 自带 url_prefix='/api/auth'
@@ -25,3 +26,4 @@ def register_blueprints(app: Flask):
     app.register_blueprint(product_unit_bp)  # 自带 url_prefix='/api/product/units'
     app.register_blueprint(product_category_bp)  # 自带 url_prefix='/api/product/categories'
     app.register_blueprint(device_bp)  # 自带 url_prefix='/api/devices'
+    app.register_blueprint(quote_bp)  # 自带 url_prefix='/api/quotes'
