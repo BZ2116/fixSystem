@@ -33,6 +33,8 @@ def register_blueprints(app: Flask):
     from .statistics import bp as statistics_bp
     from .settings import bp as settings_bp
     from .log import bp as log_bp
+    from .preorder import bp as preorder_bp
+    from .return_order import bp as return_order_bp
     app.register_blueprint(setup_bp, url_prefix='/api/setup')
     app.register_blueprint(health_bp)  # /api/health
     app.register_blueprint(auth_bp)  # 自带 url_prefix='/api/auth'
@@ -79,3 +81,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(settings_bp)
     # log 自带各路由的完整路径（/api/operation-logs/export）
     app.register_blueprint(log_bp)
+    # preorder 自带各路由的完整路径（/api/pre-orders 等）
+    app.register_blueprint(preorder_bp)
+    # return_order 自带各路由的完整路径（/api/return-orders 等）
+    app.register_blueprint(return_order_bp)
