@@ -32,6 +32,7 @@ def register_blueprints(app: Flask):
     from .expense import bp as expense_bp
     from .statistics import bp as statistics_bp
     from .settings import bp as settings_bp
+    from .log import bp as log_bp
     app.register_blueprint(setup_bp, url_prefix='/api/setup')
     app.register_blueprint(health_bp)  # /api/health
     app.register_blueprint(auth_bp)  # 自带 url_prefix='/api/auth'
@@ -76,3 +77,5 @@ def register_blueprints(app: Flask):
     app.register_blueprint(statistics_bp)
     # settings 自带各路由的完整路径（/api/settings/wo-types /projects /print-templates* /roles* /permissions* /users* /logs /init-permissions）
     app.register_blueprint(settings_bp)
+    # log 自带各路由的完整路径（/api/operation-logs/export）
+    app.register_blueprint(log_bp)
