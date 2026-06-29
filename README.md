@@ -166,7 +166,8 @@ flask db migrate
 flask db upgrade
 
 # 启动服务
-python app.py
+cd backend && python run.py
+# 或（向后兼容）：cd backend && gunicorn run:app
 ```
 
 #### 4. 部署前端
@@ -294,7 +295,14 @@ repair-system/
 ├── backend/                    # 后端代码
 │   ├── Dockerfile
 │   ├── requirements.txt
-│   ├── app.py                  # 主应用
+│   ├── run.py                  # 主入口（gunicorn: run:app）
+│   ├── app/                    # 应用工厂 + 蓝图
+│   │   ├── __init__.py
+│   │   ├── blueprints/         # 各业务域蓝图
+│   │   ├── config.py
+│   │   ├── security.py
+│   │   └── utils/
+│   ├── models/                 # SQLAlchemy 模型（按子域分目录）
 │   └── database/
 │       └── init.sql            # 数据库初始化脚本
 └── frontend/                   # 前端代码
