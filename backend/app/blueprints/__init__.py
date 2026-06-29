@@ -27,6 +27,7 @@ def register_blueprints(app: Flask):
     from .dispatch import bp as dispatch_bp
     from .asset import bp as asset_bp
     from .finance import bp as finance_bp
+    from .reconciliation import bp as reconciliation_bp
     app.register_blueprint(setup_bp, url_prefix='/api/setup')
     app.register_blueprint(health_bp)  # /api/health
     app.register_blueprint(auth_bp)  # 自带 url_prefix='/api/auth'
@@ -61,3 +62,5 @@ def register_blueprints(app: Flask):
     app.register_blueprint(asset_bp)
     # finance 自带各路由的完整路径（/api/finance/accounts /api/finance/records /api/finance/receivables /api/finance/payables /api/invoices 等）
     app.register_blueprint(finance_bp)
+    # reconciliation 自带各路由的完整路径（/api/reconciliation/customer /supplier /account 等）
+    app.register_blueprint(reconciliation_bp)
