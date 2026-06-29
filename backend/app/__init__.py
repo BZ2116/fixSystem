@@ -59,11 +59,6 @@ def create_app(config_name=None):
     from .blueprints import register_blueprints
     register_blueprints(app)
 
-    # 健康检查
-    @app.route('/api/health')
-    def health():
-        return {'code': 200, 'message': 'ok', 'data': {'status': 'healthy'}}, 200
-
     # 初始化种子（仅空库时）
     with app.app_context():
         from .seed import run_seeds_if_empty
