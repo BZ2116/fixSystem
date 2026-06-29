@@ -20,6 +20,8 @@ def register_blueprints(app: Flask):
     from .inventory import bp as inventory_bp
     from .purchase import bp as purchase_bp
     from .sales import bp as sales_bp
+    from .workorder import bp as workorder_bp
+    from .workorder_actions import bp as workorder_actions_bp
     app.register_blueprint(setup_bp, url_prefix='/api/setup')
     app.register_blueprint(health_bp)  # /api/health
     app.register_blueprint(auth_bp)  # 自带 url_prefix='/api/auth'
@@ -40,3 +42,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(purchase_bp)
     # sales 自带各路由的完整路径（/api/sales/orders /api/sales/invoices /api/sales/receipts 等）
     app.register_blueprint(sales_bp)
+    # workorder 自带各路由的完整路径（/api/workorders /api/workorders/<id>/status 等）
+    app.register_blueprint(workorder_bp)
+    # workorder_actions 提供 13 个状态机路由（/api/workorders/<id>/dispatch /accept /settle 等）
+    app.register_blueprint(workorder_actions_bp)
