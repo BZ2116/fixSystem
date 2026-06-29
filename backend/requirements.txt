@@ -11,3 +11,4 @@ bcrypt==4.1.2
 gunicorn==21.2.0
 openpyxl==3.1.2
 Werkzeug==2.3.7
+pypinyin==0.51.0
