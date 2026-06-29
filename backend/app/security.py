@@ -133,3 +133,16 @@ def permission(*required_codes: str):
             return fn(*args, **kwargs)
         return wrapper
     return decorator
+
+
+def get_current_user_id() -> int:
+    """从 JWT claims 取当前用户 ID。"""
+    from flask_jwt_extended import get_jwt_identity
+    return get_jwt_identity()
+
+
+def get_current_user():
+    """取当前用户对象。"""
+    from models.system import SysUser
+    uid = get_current_user_id()
+    return SysUser.query.get(uid) if uid else None
