@@ -30,22 +30,35 @@ class Config:
     JWT_CSRF_IN_COOKIES = True
     JWT_CSRF_HEADER_NAME = 'X-CSRF-TOKEN'
 
-    # 数据库
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    # 数据库（默认指向 data/repair_system.db；DATABASE_URL 可覆盖）
+    _DEFAULT_DB_PATH = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        'data',
+        'repair_system.db',
+    )
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URL', f'sqlite:///{_DEFAULT_DB_PATH}'
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_pre_ping': True,
-        'pool_recycle': 3600,
-    }
-    # pymysql 专属参数（sqlite 测试不需要）
-    if SQLALCHEMY_DATABASE_URI.startswith('mysql'):
-        SQLALCHEMY_ENGINE_OPTIONS['connect_args'] = {
-            'charset': 'utf8mb4',
-            'init_command': "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
+
+    # 按方言返回 engine options
+    if SQLALCHEMY_DATABASE_URI.startswith('sqlite'):
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'connect_args': {
+                'timeout': 5,           # busy_timeout (seconds)
+                'check_same_thread': False,
+            },
+            'pool_pre_ping': True,
+        }
+    else:
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'pool_pre_ping': True,
+            'pool_recycle': 3600,
         }
 
-    # Redis
-    REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+    # Redis 已移除（JWT 黑名单改用 SQLite jwt_blacklist 表）
+    # 保留 REDIS_URL 配置项以兼容旧 .env；不读取
+    REDIS_URL = os.environ.get('REDIS_URL', '')  # 兼容旧 env，实际不使用
 
     # 上传
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', '/app/uploads')
