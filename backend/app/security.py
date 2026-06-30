@@ -4,6 +4,7 @@
 2026-06-30: JWT 黑名单从 Redis 迁移到 SQLite jwt_blacklist 表。
 """
 import os
+import logging
 from datetime import datetime
 from uuid import uuid4
 from flask import jsonify, g, request
@@ -12,6 +13,8 @@ from flask import jsonify, g, request
 from extensions import jwt, db
 
 REVOKED_JTI_KEY = 'jwt:revoked:{}'  # 保留兼容旧 import；新逻辑使用 SQL 表
+
+logger = logging.getLogger(__name__)
 
 
 def configure_jwt(jwt_instance):
@@ -33,6 +36,7 @@ def configure_jwt(jwt_instance):
             ).first()
             return row is not None
         except Exception:
+            logger.warning('check_revoked DB error (fail-open)', exc_info=True)
             return False
 
     @jwt_instance.revoked_token_loader
@@ -58,9 +62,10 @@ def revoke_token(jwt_payload: dict):
     exp = jwt_payload.get('exp')
     if not jti:
         return
+    # exp 缺失时存远期 sentinel（9999-01-01），否则 check_revoked 会立即判过期
     expires_at = (
         datetime.fromtimestamp(exp) if exp
-        else datetime.now()
+        else datetime(9999, 1, 1)
     )
     try:
         db.session.execute(
@@ -73,6 +78,7 @@ def revoke_token(jwt_payload: dict):
         db.session.commit()
     except Exception:
         db.session.rollback()
+        logger.warning('revoke_token DB error', exc_info=True)
 
 
 def cleanup_expired_blacklist():
@@ -85,6 +91,7 @@ def cleanup_expired_blacklist():
         db.session.commit()
     except Exception:
         db.session.rollback()
+        logger.warning('cleanup_expired_blacklist DB error', exc_info=True)
 
 
 # ===================== 文件上传白名单 =====================
