@@ -45,9 +45,7 @@ def create_app(config_name=None):
         supports_credentials=True,
     )
 
-    # Redis 初始化（token 黑名单等依赖）
-    from extensions import init_redis
-    init_redis(app.config['REDIS_URL'])
+    # JWT 黑名单使用 SQLite jwt_blacklist 表（无需 Redis）
 
     if app.config.get('TALISMAN_ENABLED', False):
         talisman.init_app(app, **app.config['TALISMAN_OPTIONS'])
@@ -59,6 +57,11 @@ def create_app(config_name=None):
     # 业务路由
     from .blueprints import register_blueprints
     register_blueprints(app)
+
+    # 启动时清理过期 JWT 黑名单
+    with app.app_context():
+        from .security import cleanup_expired_blacklist
+        cleanup_expired_blacklist()
 
     # 初始化种子（仅空库时）
     with app.app_context():
