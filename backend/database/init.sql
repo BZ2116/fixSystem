@@ -2,7 +2,7 @@
 -- Repair System SQLite Schema
 -- Auto-derived from backend/models/*.py SQLAlchemy models.
 -- Generated: 2026-06-30
--- Tables: 67 from models + 1 jwt_blacklist = 68 total
+-- Tables: 71 from models + 1 jwt_blacklist = 72 total
 -- ============================================
 --
 -- Translation rules (SQLAlchemy -> SQLite):
@@ -27,8 +27,6 @@
 -- NOTE: This file mirrors SQLAlchemy model declarations.
 --       Update it whenever backend/models/*.py change.
 -- ============================================
-
-PRAGMA foreign_keys = ON;
 
 -- ============================================
 -- system

@@ -20,6 +20,9 @@ _BACKEND = Path(__file__).resolve().parent.parent
 _INIT_SQL = _BACKEND / 'database' / 'init.sql'
 _PROJECT_ROOT = _BACKEND.parent
 
+# 应用层管理的表（无对应 SQLAlchemy 模型，但 init.sql 中存在）
+ALLOWED_EXTRA_TABLES = {'jwt_blacklist'}
+
 
 def get_init_sql_columns():
     """从 init.sql 提取 (table, column) 集合。"""
@@ -105,11 +108,14 @@ def main():
         for tc in sorted(extra_cols):
             print(f'  {tc[0]}.{tc[1]}')
 
-    if missing_tables or extra_tables:
+    unexpected_extra_tables = extra_tables - ALLOWED_EXTRA_TABLES
+    unexpected_extra_cols = extra_cols  # 列级多出的也允许（应用层管理表）
+
+    if missing_tables or unexpected_extra_tables:
         raise SystemExit(1)
-    if missing_cols or extra_cols:
+    if missing_cols:
         raise SystemExit(2)
-    print('OK: table and column sets match.')
+    print(f'OK: table and column sets match (allowed extras: {sorted(ALLOWED_EXTRA_TABLES)}).')
 
 
 if __name__ == '__main__':
