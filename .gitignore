@@ -38,3 +38,39 @@ desktop.ini
 
 # Uploads (backend runtime)
 backend/uploads/
+
+# Python
+backend/.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# 数据 / 日志 / PID（运行时生成，不入库）
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/uploads/*
+!data/uploads/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
+data/.pids/*
+!data/.pids/.gitkeep
+
+# 环境变量
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 便携包产物
+repair-system-portable-*.zip
