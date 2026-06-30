@@ -1,351 +1,144 @@
-# 维修商贸一体化管理系统
+# 维修商贸一体化管理系统（便携版）
 
 ## 系统概述
 
-维修商贸一体化管理系统是一套完整的商用级管理解决方案，专为维修行业、商贸企业设计。系统涵盖工单管理、进销存、财务管理、客户管理、供应商管理等核心模块，支持私有化部署。
+维修商贸一体化管理系统的便携部署版本。**无需 Docker、无需 MySQL、无需 Redis**，解压即用，数据存本地 SQLite 文件。
+
+适用于：
+- 单店 / 小团队（≤ 5 并发用户）
+- 跨电脑迁移（zip → 解压 → 启动）
+- 离线 / 内网环境
 
 ## 技术栈
 
 ### 前端
-- Vue 3.3.4
-- Vite 4.4.9
-- Element Plus 2.3.14
-- Vue Router 4.2.4
-- Pinia 2.1.6
-- Axios 1.5.0
+- Vue 3.2.47 + Vite 4.4.9 + Element Plus 2.2.28
 
 ### 后端
-- Python 3.11
-- Flask 2.3.3
-- Flask-SQLAlchemy 3.0.5
-- Flask-JWT-Extended 4.5.2
-- PyMySQL 1.1.0
+- Python 3.11 + Flask 2.3.3 + Flask-SQLAlchemy 3.0.5 + Flask-JWT-Extended 4.5.2
 
-### 数据库
-- MySQL 8.0
-- Redis 7
+### 数据
+- SQLite（Python 内置，单文件）
+- 本地文件系统（上传文件）
 
-### 部署
-- Docker
-- Docker Compose
+## 快速开始
 
-## 功能模块
+### Windows
 
-### 1. 工单管理
-- 工单类型自定义（设备安装/维修/维护、网络安装/维修/维护等）
-- 工单全流程闭环管理
-- 自动派单与申领单生成
-- 外修供应商绑定
+1. 安装 Python 3.11+：<https://www.python.org/downloads/>
+2. 解压项目到任意目录
+3. 双击 `start.bat`
+4. 浏览器打开 <http://localhost:5173>
+5. 默认账号：`admin` / `123456`
 
-### 2. 进销存管理
-- 采购单、销售单、销售预定单
-- 退货单、零售单
-- 同价调拨、变价调拨
-- 商品组装、拆卸
-- 成本调价
-
-### 3. 库存管理
-- 实时库存查询
-- 库存台账
-- 库存盘点
-- 库存预警
-
-### 4. 财务管理
-- 账户管理
-- 收付款管理
-- 应收应付往来
-- 发票管理
-- 电子收据
-
-### 5. 客户管理
-- 客户资料管理
-- 折扣率设置
-- 历史交易记录
-- 往来对账
-
-### 6. 供应商管理
-- 供应商资料
-- 采购记录
-- 外修合作记录
-- 应付账款
-
-### 7. 商品管理
-- 商品编码自动生成
-- 条码生成与打印
-- 价格管理
-- 库存预警
-
-### 8. 系统管理
-- 用户管理
-- 角色权限管理
-- 操作日志
-- 数据修改留痕
-- 打印模板管理
-
-## 部署指南
-
-### 方式一：Docker Compose 一键部署（推荐）
-
-#### 1. 环境要求
-- Docker 20.10+
-- Docker Compose 2.0+
-- 服务器内存建议 4GB+
-
-#### 2. 部署步骤
+### Linux / macOS
 
 ```bash
-# 1. 克隆项目
-git clone <项目地址>
-cd repair-system
-
-# 2. 启动服务
-docker-compose up -d
-
-# 3. 查看服务状态
-docker-compose ps
-
-# 4. 查看日志
-docker-compose logs -f
+chmod +x start.sh stop.sh
+./start.sh
 ```
 
-#### 3. 访问系统
-- 前端地址：http://服务器IP
-- 后端API：http://服务器IP:5000
-- 默认账号：admin / 123456
-
-#### 4. 停止服务
-```bash
-docker-compose down
-```
-
-#### 5. 数据备份
-```bash
-# 备份MySQL数据
-docker exec repair_system_mysql mysqldump -urepair_user -pRepair@2024 repair_system > backup.sql
-
-# 恢复MySQL数据
-docker exec -i repair_system_mysql mysql -urepair_user -pRepair@2024 repair_system < backup.sql
-```
-
-### 方式二：手动部署
-
-#### 1. 安装MySQL
-```bash
-# 安装MySQL 8.0
-sudo apt update
-sudo apt install mysql-server-8.0
-
-# 创建数据库
-mysql -u root -p
-CREATE DATABASE repair_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'repair_user'@'%' IDENTIFIED BY 'Repair@2024';
-GRANT ALL PRIVILEGES ON repair_system.* TO 'repair_user'@'%';
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-#### 2. 安装Redis
-```bash
-sudo apt install redis-server
-```
-
-#### 3. 部署后端
-```bash
-cd backend
-
-# 创建虚拟环境
-python3 -m venv venv
-source venv/bin/activate
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 初始化数据库
-flask db init
-flask db migrate
-flask db upgrade
-
-# 启动服务
-cd backend && python run.py
-# 或（向后兼容）：cd backend && gunicorn run:app
-```
-
-#### 4. 部署前端
-```bash
-cd frontend
-
-# 安装依赖
-npm install
-
-# 开发模式
-npm run dev
-
-# 生产构建
-npm run build
-```
-
-## 飞牛NAS Docker部署详细教程
-
-### 1. 准备工作
-
-登录飞牛NAS管理界面，确保已安装Docker套件。
-
-### 2. 上传项目文件
-
-将项目文件上传到NAS的共享文件夹，例如：`/volume1/docker/repair-system`
-
-### 3. 创建Docker网络
-
-```bash
-# SSH登录NAS
-ssh admin@你的NAS_IP
-
-# 创建专用网络
-docker network create repair_network
-```
-
-### 4. 启动MySQL容器
-
-```bash
-docker run -d \
-  --name repair_system_mysql \
-  --network repair_network \
-  -e MYSQL_ROOT_PASSWORD=Repair@2024 \
-  -e MYSQL_DATABASE=repair_system \
-  -e MYSQL_USER=repair_user \
-  -e MYSQL_PASSWORD=Repair@2024 \
-  -v /volume1/docker/repair-system/mysql_data:/var/lib/mysql \
-  -v /volume1/docker/repair-system/backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql \
-  -p 3306:3306 \
-  --restart always \
-  mysql:8.0 \
-  --default-authentication-plugin=mysql_native_password \
-  --character-set-server=utf8mb4 \
-  --collation-server=utf8mb4_unicode_ci
-```
-
-### 5. 启动Redis容器
-
-```bash
-docker run -d \
-  --name repair_system_redis \
-  --network repair_network \
-  -v /volume1/docker/repair-system/redis_data:/data \
-  --restart always \
-  redis:7-alpine
-```
-
-### 6. 构建并启动后端
-
-```bash
-# 进入后端目录
-cd /volume1/docker/repair-system/backend
-
-# 构建镜像
-docker build -t repair_system_backend .
-
-# 启动容器
-docker run -d \
-  --name repair_system_backend \
-  --network repair_network \
-  -e FLASK_ENV=production \
-  -e DATABASE_URL=mysql+pymysql://repair_user:Repair@2024@repair_system_mysql:3306/repair_system \
-  -e REDIS_URL=redis://repair_system_redis:6379/0 \
-  -e JWT_SECRET_KEY=RepairSystemSecretKey2024 \
-  -v /volume1/docker/repair-system/backend:/app \
-  -v /volume1/docker/repair-system/uploads:/app/uploads \
-  -p 5000:5000 \
-  --restart always \
-  repair_system_backend
-```
-
-### 7. 构建并启动前端
-
-```bash
-# 进入前端目录
-cd /volume1/docker/repair-system/frontend
-
-# 构建镜像
-docker build -t repair_system_frontend .
-
-# 启动容器
-docker run -d \
-  --name repair_system_frontend \
-  --network repair_network \
-  -p 80:80 \
-  --restart always \
-  repair_system_frontend
-```
-
-### 8. 验证部署
-
-- 打开浏览器访问：`http://你的NAS_IP`
-- 使用默认账号登录：admin / 123456
-
-### 9. 设置开机自启
-
-在飞牛NAS的Docker管理界面中，设置所有容器为自动启动。
+首次启动会自动：
+- 复制 `.env.example` → `.env`
+- 创建 `backend/.venv/` 并安装依赖
+- 执行 `backend/scripts/init_db.py` 建库 + 种子数据
+- 安装 `frontend/node_modules/`
+- 启动 Flask（5000）+ Vite（5173）
 
 ## 目录结构
 
 ```
 repair-system/
-├── docker-compose.yml          # Docker Compose配置
-├── README.md                   # 项目说明
 ├── backend/                    # 后端代码
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   ├── run.py                  # 主入口（gunicorn: run:app）
-│   ├── app/                    # 应用工厂 + 蓝图
-│   │   ├── __init__.py
-│   │   ├── blueprints/         # 各业务域蓝图
-│   │   ├── config.py
-│   │   ├── security.py
-│   │   └── utils/
-│   ├── models/                 # SQLAlchemy 模型（按子域分目录）
-│   └── database/
-│       └── init.sql            # 数据库初始化脚本
-└── frontend/                   # 前端代码
-    ├── Dockerfile
-    ├── nginx.conf
-    ├── package.json
-    ├── vite.config.js
-    └── src/
-        ├── main.js
-        ├── App.vue
-        ├── router/
-        ├── stores/
-        ├── api/
-        ├── views/
-        └── styles/
+│   ├── app/                    # 工厂 + blueprints + services + utils
+│   ├── models/                 # SQLAlchemy 模型
+│   ├── database/init.sql       # SQLite schema
+│   ├── scripts/                # init_db / start_dev
+│   ├── tests/
+│   └── requirements.txt
+├── frontend/                   # 前端代码（dist/ 预构建在 zip 中）
+├── data/                       # ★ 运行时数据（备份这个目录就够了）
+│   ├── repair_system.db        # SQLite 主库
+│   ├── uploads/                # 上传文件
+│   ├── logs/                   # flask.log / vite.log
+│   └── .pids/                  # flask.pid / vite.pid
+├── docs/
+│   ├── superpowers/specs/
+│   ├── superpowers/plans/
+│   └── archive/                # 旧 MySQL schema + docker 文件（参考用）
+├── start.bat / start.sh        # 开发模式入口
+├── start_prod.bat / start_prod.sh  # 生产模式入口
+├── stop.bat / stop.sh          # 停止服务
+├── .env.example
+├── .gitignore
+├── README.md
+└── VERSION.txt
 ```
 
-## 默认账号
+## 数据备份
 
-- 用户名：admin
-- 密码：123456
+```bash
+# 1. 停止服务
+stop.bat   # 或 ./stop.sh
 
-## 注意事项
+# 2. 备份整个 data/ 目录
+xcopy /E data\ data_backup_20260630\
+# 或 Linux：cp -r data/ data_backup_20260630/
 
-1. **生产环境部署前请修改默认密码**
-2. **定期备份数据库**
-3. **建议使用HTTPS部署**
-4. **配置防火墙规则，仅开放必要端口**
+# 3. 重启
+start.bat
+```
+
+仅备份 `data/repair_system.db*` 三个文件即可完整恢复业务数据。
+
+## 跨电脑迁移
+
+在源机器上：
+```cmd
+build_portable.bat 2026.06.30
+```
+产出 `repair-system-portable-v2026.06.30.zip`（含预构建的 `frontend/dist/`）。
+
+在目标机器上：
+1. 安装 Python 3.11+
+2. 解压 zip
+3. **如果需要带上旧数据**：把旧机器的 `data/repair_system.db*` 覆盖到解压目录的 `data/`
+4. 双击 `start.bat` → 自动检测 `data/repair_system.db` 已存在，跳过初始化
+
+## 生产模式
+
+- Windows：`start_prod.bat`（用 waitress / flask run）
+- Linux：`./start_prod.sh`（用 gunicorn -w 2）
+- 前端使用 `frontend/dist/` 预构建静态文件（不是 dev server）
+
+## 限制
+
+- SQLite 串行化写：≤ 5 并发用户适用
+- 没有全文搜索（`LIKE '%xxx%'` 仍可用）
+- 没有对象存储（上传文件走本地 `data/uploads/`）
+
+## 故障排查
+
+| 问题 | 解决 |
+|------|------|
+| `python: command not found` | 安装 Python 3.11+ 并加入 PATH |
+| `OperationalError: database is locked` | 关闭其他连接，或删除 `data/.pids/*.pid` 后重启 |
+| 前端 404 | 检查 `frontend/dist/` 是否存在；缺失则 `cd frontend && npm run build` |
+| 端口 5000/5173 占用 | 改 `start_dev.py` 中的端口，或 `netstat` / `lsof` 找到占用进程 |
 
 ## 技术支持
 
-如有问题，请查看日志或联系技术支持。
+查看日志：
+- `data/logs/flask.log`
+- `data/logs/vite.log`
 
-```bash
-# 查看后端日志
-docker logs -f repair_system_backend
+## 归档清理（2026-07-14 后执行）
 
-# 查看前端日志
-docker logs -f repair_system_frontend
+两个过渡性目录将在 2 周后删除：
+- `docs/archive/docker-configs/` —— 旧 docker 文件
+- `docs/archive/database_complete_v3.sql` —— MySQL 原版 schema（参考用）
 
-# 查看MySQL日志
-docker logs -f repair_system_mysql
-```
+届时会再发一个 commit 完成清理。
 
 ## 许可证
 
