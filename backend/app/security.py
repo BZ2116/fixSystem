@@ -1,14 +1,17 @@
 """
 安全相关：JWT 配置、token 黑名单、文件上传白名单。
+
+2026-06-30: JWT 黑名单从 Redis 迁移到 SQLite jwt_blacklist 表。
 """
 import os
+from datetime import datetime
 from uuid import uuid4
 from flask import jsonify, g, request
 
 # extensions 在 backend/ 根目录（不在 backend/app/ 下）
-from extensions import jwt, redis_client  # runtime resolved via sys.path
+from extensions import jwt, db
 
-REVOKED_JTI_KEY = 'jwt:revoked:{}'
+REVOKED_JTI_KEY = 'jwt:revoked:{}'  # 保留兼容旧 import；新逻辑使用 SQL 表
 
 
 def configure_jwt(jwt_instance):
@@ -16,11 +19,19 @@ def configure_jwt(jwt_instance):
 
     @jwt_instance.token_in_blocklist_loader
     def check_revoked(_jwt_header, jwt_payload):
-        jti = jwt_payload['jti']
-        if redis_client is None:
+        """从 SQLite jwt_blacklist 表查询。"""
+        jti = jwt_payload.get('jti')
+        if not jti:
             return False
         try:
-            return bool(redis_client.exists(REVOKED_JTI_KEY.format(jti)))
+            row = db.session.execute(
+                db.text(
+                    'SELECT 1 FROM jwt_blacklist '
+                    'WHERE jti = :jti AND expires_at > :now'
+                ),
+                {'jti': jti, 'now': datetime.now()},
+            ).first()
+            return row is not None
         except Exception:
             return False
 
@@ -42,13 +53,38 @@ def configure_jwt(jwt_instance):
 
 
 def revoke_token(jwt_payload: dict):
-    """把 jti 加入 redis 黑名单，过期时间与 token TTL 一致。"""
-    jti = jwt_payload['jti']
+    """把 jti 写入 SQLite jwt_blacklist；过期由 token exp 决定。"""
+    jti = jwt_payload.get('jti')
     exp = jwt_payload.get('exp')
-    if redis_client is None:
+    if not jti:
         return
-    ttl = max(60, int(exp - __import__('time').time())) if exp else 7 * 24 * 3600
-    redis_client.setex(REVOKED_JTI_KEY.format(jti), ttl, '1')
+    expires_at = (
+        datetime.fromtimestamp(exp) if exp
+        else datetime.now()
+    )
+    try:
+        db.session.execute(
+            db.text(
+                'INSERT OR IGNORE INTO jwt_blacklist (jti, expires_at) '
+                'VALUES (:jti, :exp)'
+            ),
+            {'jti': jti, 'exp': expires_at},
+        )
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+
+def cleanup_expired_blacklist():
+    """清理已过期的黑名单条目（启动时 + 每日调用）。"""
+    try:
+        db.session.execute(
+            db.text('DELETE FROM jwt_blacklist WHERE expires_at < :now'),
+            {'now': datetime.now()},
+        )
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
 
 
 # ===================== 文件上传白名单 =====================
