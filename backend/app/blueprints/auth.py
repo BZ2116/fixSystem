@@ -2,8 +2,14 @@
 from datetime import datetime
 
 import bcrypt
-from flask import Blueprint, request
-from flask_jwt_extended import create_access_token, get_jwt, jwt_required
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt,
+    jwt_required,
+    set_access_cookies,
+    unset_jwt_cookies,
+)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from extensions import db
@@ -64,7 +70,7 @@ def login():
             else:
                 permissions = perms
 
-    return ok({
+    response, status = ok({
         'token': access_token,
         'userInfo': {
             'id': user.id,
@@ -82,6 +88,9 @@ def login():
             }
         }
     }, '登录成功')
+    # JWT cookie-only 模式必须通过 Set-Cookie 头下发，否则前端后续请求无 token 会 401
+    set_access_cookies(response, access_token)
+    return response, status
 
 
 @bp.route('/register', methods=['POST'])
@@ -118,3 +127,14 @@ def register():
     db.session.commit()
 
     return ok({'id': new_user.id}, '注册成功')
+
+
+@bp.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    """用户登出：撤销当前 JWT 并清除 cookie。"""
+    from app.security import revoke_token
+    revoke_token(get_jwt())
+    response, status = ok(message='已登出')
+    unset_jwt_cookies(response)
+    return response, status

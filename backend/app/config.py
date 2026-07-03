@@ -36,9 +36,9 @@ class Config:
         'data',
         'repair_system.db',
     )
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL', f'sqlite:///{_DEFAULT_DB_PATH}'
-    )
+    # SQLite URI 必须用正斜杠（Windows 反斜杠会被 SQLAlchemy 当成 scheme 分隔符）
+    _DEFAULT_DB_URI = 'sqlite:///' + _DEFAULT_DB_PATH.replace('\\', '/')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or _DEFAULT_DB_URI
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # 按方言返回 engine options

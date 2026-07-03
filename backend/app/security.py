@@ -70,10 +70,10 @@ def revoke_token(jwt_payload: dict):
     try:
         db.session.execute(
             db.text(
-                'INSERT OR IGNORE INTO jwt_blacklist (jti, expires_at) '
-                'VALUES (:jti, :exp)'
+                'INSERT OR IGNORE INTO jwt_blacklist (jti, revoked_at, expires_at) '
+                'VALUES (:jti, :now, :exp)'
             ),
-            {'jti': jti, 'exp': expires_at},
+            {'jti': jti, 'now': datetime.now(), 'exp': expires_at},
         )
         db.session.commit()
     except Exception:
