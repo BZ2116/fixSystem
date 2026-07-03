@@ -1,15 +1,16 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class DeviceReceiveOrder(db.Model):
     """设备接收单"""
     __tablename__ = 'device_receive_order'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     receive_no = db.Column(db.String(50), unique=True, nullable=False)  # 接收单号
-    wo_id = db.Column(db.BigInteger)  # 关联工单ID
-    customer_id = db.Column(db.BigInteger)
+    wo_id = db.Column(BigIntPK)  # 关联工单ID
+    customer_id = db.Column(BigIntPK)
     customer_name = db.Column(db.String(100))
     customer_phone = db.Column(db.String(20))
 
@@ -28,7 +29,7 @@ class DeviceReceiveOrder(db.Model):
     remark = db.Column(db.Text)  # 备注
 
     # 确认信息
-    receiver_id = db.Column(db.BigInteger)  # 接收人ID
+    receiver_id = db.Column(BigIntPK)  # 接收人ID
     receiver_name = db.Column(db.String(50))  # 接收人姓名
     receive_time = db.Column(db.DateTime, default=datetime.now)  # 接收时间
 
@@ -43,8 +44,8 @@ class DeviceReceiveOrder(db.Model):
 class DeviceAccessory(db.Model):
     """配件明细表"""
     __tablename__ = 'device_accessory'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    receive_order_id = db.Column(db.BigInteger, nullable=False)  # 关联接件单ID
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    receive_order_id = db.Column(BigIntPK, nullable=False)  # 关联接件单ID
     accessory_name = db.Column(db.String(100), nullable=False)  # 配件名称
     quantity = db.Column(db.Integer, default=1)  # 数量
     status = db.Column(db.String(20), default='完好')  # 状态: 完好/损坏/缺失
@@ -55,8 +56,8 @@ class DeviceAccessory(db.Model):
 class DevicePhoto(db.Model):
     """接件照片表"""
     __tablename__ = 'device_photo'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    receive_order_id = db.Column(db.BigInteger, nullable=False)  # 关联接件单ID
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    receive_order_id = db.Column(BigIntPK, nullable=False)  # 关联接件单ID
     photo_type = db.Column(db.String(20), default='整体照')  # 照片类型: 整体照/外观照/屏幕照/标签特写
     photo_url = db.Column(db.String(500), nullable=False)  # 照片URL
     remark = db.Column(db.String(255))  # 备注

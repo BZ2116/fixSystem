@@ -1,17 +1,18 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class DispatchRecord(db.Model):
     """派单记录表"""
     __tablename__ = 'dispatch_record'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    wo_id = db.Column(db.BigInteger, nullable=False)  # 关联工单ID
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    wo_id = db.Column(BigIntPK, nullable=False)  # 关联工单ID
     dispatch_type = db.Column(db.String(20), default='manual')  # 派单类型: manual/auto/grab
-    dispatcher_id = db.Column(db.BigInteger)  # 派单人ID
+    dispatcher_id = db.Column(BigIntPK)  # 派单人ID
     dispatcher_name = db.Column(db.String(50))  # 派单人姓名
-    staff_id = db.Column(db.BigInteger)  # 技术员ID
+    staff_id = db.Column(BigIntPK)  # 技术员ID
     staff_name = db.Column(db.String(50))  # 技术员姓名
     staff_phone = db.Column(db.String(20))  # 技术员电话
     dispatch_time = db.Column(db.DateTime, default=datetime.now)  # 派单时间
@@ -29,11 +30,11 @@ class DispatchRecord(db.Model):
 class StaffStatus(db.Model):
     """技术员实时状态表"""
     __tablename__ = 'staff_status'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    staff_id = db.Column(db.BigInteger, unique=True, nullable=False)  # 技术员用户ID
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    staff_id = db.Column(BigIntPK, unique=True, nullable=False)  # 技术员用户ID
     staff_name = db.Column(db.String(50))  # 姓名
     online_status = db.Column(db.Integer, default=0)  # 在线状态: 0离线 1在线 2忙碌
-    current_wo_id = db.Column(db.BigInteger)  # 当前工单ID
+    current_wo_id = db.Column(BigIntPK)  # 当前工单ID
     today_count = db.Column(db.Integer, default=0)  # 今日接单数
     today_finished = db.Column(db.Integer, default=0)  # 今日完成数
     max_daily = db.Column(db.Integer, default=10)  # 每日最大接单量
@@ -46,10 +47,10 @@ class StaffStatus(db.Model):
 class DispatchLog(db.Model):
     """派单操作日志"""
     __tablename__ = 'dispatch_log'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    wo_id = db.Column(db.BigInteger, nullable=False)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    wo_id = db.Column(BigIntPK, nullable=False)
     action = db.Column(db.String(50))  # 派单/接单/拒单/改派/取消
     content = db.Column(db.Text)
-    operator_id = db.Column(db.BigInteger)
+    operator_id = db.Column(BigIntPK)
     operator_name = db.Column(db.String(50))
     created_at = db.Column(db.DateTime, default=datetime.now)

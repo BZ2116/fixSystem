@@ -1,12 +1,13 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class Office(db.Model):
     """办公室/办事处"""
     __tablename__ = 'office'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False, comment='办公室名称')
     code = db.Column(db.String(50), unique=True, comment='办公室编码')
     sort_order = db.Column(db.Integer, default=0, comment='排序')

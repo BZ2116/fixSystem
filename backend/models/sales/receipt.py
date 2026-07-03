@@ -6,13 +6,14 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class SalesReceipt(db.Model):
     """销售收据"""
     __tablename__ = 'sales_receipt'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    order_id = db.Column(db.BigInteger, nullable=False)  # 关联销售单ID
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    order_id = db.Column(BigIntPK, nullable=False)  # 关联销售单ID
     order_no = db.Column(db.String(50))  # 关联销售单号
     receipt_no = db.Column(db.String(50))  # 收据编号（自动生成）
     receipt_date = db.Column(db.Date)  # 收款日期
@@ -28,6 +29,6 @@ class SalesReceipt(db.Model):
     remark = db.Column(db.Text)  # 备注/收款说明
     payee = db.Column(db.String(50))  # 收款人
     status = db.Column(db.Integer, default=1)  # 状态：1有效 0作废
-    created_by = db.Column(db.BigInteger)  # 开具人ID
+    created_by = db.Column(BigIntPK)  # 开具人ID
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)

@@ -6,14 +6,15 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class SalesOrder(db.Model):
     """销售单"""
     __tablename__ = 'sales_order'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     order_no = db.Column(db.String(50), unique=True, nullable=False)
-    customer_id = db.Column(db.BigInteger)
+    customer_id = db.Column(BigIntPK)
     customer_name = db.Column(db.String(100))
     customer_phone = db.Column(db.String(20))  # 客户电话
     customer_address = db.Column(db.String(255))  # 客户地址
@@ -27,11 +28,11 @@ class SalesOrder(db.Model):
     paid_amount = db.Column(db.Numeric(15, 2), default=0)  # 已收金额
     payment_method = db.Column(db.String(20))  # 付款方式：现金/转账/支付宝/微信/赊账
     delivery_method = db.Column(db.String(20))  # 交货方式：自提/送货/快递
-    salesperson_id = db.Column(db.BigInteger)  # 销售人员ID
+    salesperson_id = db.Column(BigIntPK)  # 销售人员ID
     salesperson_name = db.Column(db.String(50))  # 销售人员姓名
     status = db.Column(db.Integer, default=0)  # 0待审核 1已审核 2已出库 3已完成 4已取消
     remark = db.Column(db.Text)
-    created_by = db.Column(db.BigInteger)
+    created_by = db.Column(BigIntPK)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     has_invoice = db.Column(db.Integer, default=0)  # 是否开具发票：0否 1是
@@ -41,9 +42,9 @@ class SalesOrder(db.Model):
 class SalesOrderItem(db.Model):
     """销售单明细"""
     __tablename__ = 'sales_order_item'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    order_id = db.Column(db.BigInteger, nullable=False)
-    product_id = db.Column(db.BigInteger)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    order_id = db.Column(BigIntPK, nullable=False)
+    product_id = db.Column(BigIntPK)
     product_name = db.Column(db.String(200))
     specification = db.Column(db.String(100))
     unit = db.Column(db.String(20))

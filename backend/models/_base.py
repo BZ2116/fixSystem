@@ -8,6 +8,9 @@ from datetime import datetime
 
 from extensions import db
 
+# BigInteger 主键：SQLite 用 Integer 走 ROWID 自增，MySQL/PostgreSQL 用 BigInteger。
+BigIntPK = db.BigInteger().with_variant(db.Integer, "sqlite")
+
 
 class TimestampMixin:
     """created_at / updated_at 自动管理。"""

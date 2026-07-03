@@ -1,12 +1,13 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class AssetType(db.Model):
     """资产类型"""
     __tablename__ = 'asset_type'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     type_code = db.Column(db.String(50), unique=True, nullable=False)  # 类型编码: network/computer/printer等
     type_name = db.Column(db.String(50), nullable=False)  # 类型名称: 网络类设备/电脑办公类等
     icon = db.Column(db.String(50))  # 图标
@@ -22,7 +23,7 @@ class OwnDevice(db.Model):
     迁移自 source-code/app.py 中 5554-5580 行的原始模型定义。
     """
     __tablename__ = 'own_device'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     asset_no = db.Column(db.String(50), unique=True, nullable=False)
     device_type = db.Column(db.String(50))
     device_model = db.Column(db.String(100))
@@ -39,7 +40,7 @@ class OwnDevice(db.Model):
     purchase_date = db.Column(db.Date)
     warranty_expire = db.Column(db.Date)
     location = db.Column(db.String(100))
-    user_id = db.Column(db.BigInteger)
+    user_id = db.Column(BigIntPK)
     cost = db.Column(db.Numeric(15, 2), default=0.00)
     depreciation = db.Column(db.Numeric(15, 2), default=0.00)
     status = db.Column(db.Integer, default=0)  # 0正常 1维修中 2报废 3外借
@@ -51,18 +52,18 @@ class OwnDevice(db.Model):
 class Asset(db.Model):
     """资产台账"""
     __tablename__ = 'asset'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     asset_no = db.Column(db.String(50), unique=True)  # 资产编号
 
     # 归属信息（客户优先维度）
-    customer_id = db.Column(db.BigInteger, nullable=False)  # 归属客户ID
+    customer_id = db.Column(BigIntPK, nullable=False)  # 归属客户ID
     customer_name = db.Column(db.String(100), nullable=False)  # 归属客户名称
-    office_id = db.Column(db.BigInteger)  # 所属办公室ID
+    office_id = db.Column(BigIntPK)  # 所属办公室ID
     office_name = db.Column(db.String(50))  # 所属办公室名称
     location = db.Column(db.String(100))  # 存放位置
 
     # 基础信息
-    asset_type_id = db.Column(db.BigInteger, nullable=False)  # 资产类型ID
+    asset_type_id = db.Column(BigIntPK, nullable=False)  # 资产类型ID
     asset_type_name = db.Column(db.String(50))  # 资产类型名称
     asset_name = db.Column(db.String(100), nullable=False)  # 资产名称
     device_no = db.Column(db.String(50))  # 设备编号
@@ -90,11 +91,11 @@ class Asset(db.Model):
     asset_data = db.Column(db.JSON)  # 设备类型专属字段
 
     # 关联信息
-    sales_order_id = db.Column(db.BigInteger)  # 关联销售单ID
+    sales_order_id = db.Column(BigIntPK)  # 关联销售单ID
     sales_order_no = db.Column(db.String(50))  # 关联销售单号
 
     # 审计字段
-    created_by = db.Column(db.BigInteger)
+    created_by = db.Column(BigIntPK)
     created_by_name = db.Column(db.String(50))
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)

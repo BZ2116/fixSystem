@@ -6,13 +6,14 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class SalesInvoice(db.Model):
     """销售发票"""
     __tablename__ = 'sales_invoice'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    order_id = db.Column(db.BigInteger, nullable=False)  # 关联销售单ID
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    order_id = db.Column(BigIntPK, nullable=False)  # 关联销售单ID
     order_no = db.Column(db.String(50))  # 关联销售单号
     invoice_type = db.Column(db.String(30))  # 发票类型：普通发票/增值税专用发票/电子发票
     invoice_status = db.Column(db.String(20), default='未开票')  # 开票状态：未开票/已开票/作废
@@ -33,7 +34,7 @@ class SalesInvoice(db.Model):
     tax_rate = db.Column(db.Numeric(5, 2), default=0)  # 默认税率%
     remark = db.Column(db.Text)  # 开票备注
     attachment = db.Column(db.String(500))  # 发票附件路径
-    created_by = db.Column(db.BigInteger)  # 开票人ID
+    created_by = db.Column(BigIntPK)  # 开票人ID
     created_by_name = db.Column(db.String(50))  # 开票人姓名
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)

@@ -1,23 +1,24 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class ProductInfo(db.Model):
     """商品信息"""
     __tablename__ = 'product_info'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     product_code = db.Column(db.String(50), unique=True, nullable=False)
     barcode = db.Column(db.String(50), unique=True)
     product_name = db.Column(db.String(200), nullable=False)
     pinyin_code = db.Column(db.String(200))
-    category_id = db.Column(db.BigInteger)
+    category_id = db.Column(BigIntPK)
     category_name = db.Column(db.String(50))
     brand = db.Column(db.String(50))
     specification = db.Column(db.String(100))
-    unit_id = db.Column(db.BigInteger)
+    unit_id = db.Column(BigIntPK)
     unit_name = db.Column(db.String(20))
-    sub_unit_id = db.Column(db.BigInteger)  # 辅助单位
+    sub_unit_id = db.Column(BigIntPK)  # 辅助单位
     sub_unit_rate = db.Column(db.Numeric(10, 4))  # 换算率
     purchase_price = db.Column(db.Numeric(15, 4), default=0.0000)
     sale_price = db.Column(db.Numeric(15, 4), default=0.0000)
@@ -40,7 +41,7 @@ class ProductInfo(db.Model):
     status = db.Column(db.Integer, default=1)
     remark = db.Column(db.Text)
     image_url = db.Column(db.String(255))
-    shelf_id = db.Column(db.BigInteger)  # 默认货架
+    shelf_id = db.Column(BigIntPK)  # 默认货架
     shelf_name = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
@@ -49,9 +50,9 @@ class ProductInfo(db.Model):
 class ProductCategory(db.Model):
     """商品分类"""
     __tablename__ = 'product_category'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     category_name = db.Column(db.String(50), nullable=False)
-    parent_id = db.Column(db.BigInteger, default=0)
+    parent_id = db.Column(BigIntPK, default=0)
     sort_order = db.Column(db.Integer, default=0)
     status = db.Column(db.Integer, default=1)
     created_at = db.Column(db.DateTime, default=datetime.now)
@@ -60,7 +61,7 @@ class ProductCategory(db.Model):
 class ProductUnit(db.Model):
     """商品单位"""
     __tablename__ = 'product_unit'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     unit_name = db.Column(db.String(50), nullable=False)  # 单位名称
     unit_code = db.Column(db.String(20), unique=True)  # 单位编码
     conversion_rate = db.Column(db.Numeric(10, 4), default=1.0000)  # 换算率
@@ -73,9 +74,9 @@ class ProductUnit(db.Model):
 class ProductUnitRel(db.Model):
     """商品多单位关联表"""
     __tablename__ = 'product_unit_rel'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    product_id = db.Column(db.BigInteger, nullable=False)  # 商品ID
-    unit_id = db.Column(db.BigInteger, nullable=False)  # 单位ID
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    product_id = db.Column(BigIntPK, nullable=False)  # 商品ID
+    unit_id = db.Column(BigIntPK, nullable=False)  # 单位ID
     conversion_rate = db.Column(db.Numeric(10, 4), default=1.0000)  # 换算率
     is_default = db.Column(db.Integer, default=0)  # 是否默认单位 1是 0否
     created_at = db.Column(db.DateTime, default=datetime.now)

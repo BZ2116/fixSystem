@@ -1,14 +1,15 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class QuoteOrder(db.Model):
     """报价单"""
     __tablename__ = 'quote_order'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     quote_no = db.Column(db.String(50), unique=True, nullable=False)
-    customer_id = db.Column(db.BigInteger)
+    customer_id = db.Column(BigIntPK)
     customer_name = db.Column(db.String(100))
     customer_phone = db.Column(db.String(20))
     contact_name = db.Column(db.String(50))
@@ -19,8 +20,8 @@ class QuoteOrder(db.Model):
     remark = db.Column(db.Text)
     status = db.Column(db.Integer, default=0)  # 0待确认 1已确认 2已失效 3已转工单 4已转接件 5已转销售
     related_type = db.Column(db.String(50))
-    related_id = db.Column(db.BigInteger)
-    created_by = db.Column(db.BigInteger)
+    related_id = db.Column(BigIntPK)
+    created_by = db.Column(BigIntPK)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
@@ -28,8 +29,8 @@ class QuoteOrder(db.Model):
 class QuoteOrderItem(db.Model):
     """报价单明细"""
     __tablename__ = 'quote_order_item'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    quote_id = db.Column(db.BigInteger, nullable=False)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    quote_id = db.Column(BigIntPK, nullable=False)
     product_name = db.Column(db.String(200))
     specification = db.Column(db.String(100))
     brand = db.Column(db.String(50))

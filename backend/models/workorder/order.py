@@ -1,16 +1,17 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class WorkOrder(db.Model):
     """维修工单"""
     __tablename__ = 'work_order'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     wo_no = db.Column(db.String(50), unique=True, nullable=False)  # 工单号
     wo_type = db.Column(db.String(50))  # 工单类型: network/device/delivery/monitor/purchase/survey/install
     wo_sub_type = db.Column(db.String(50))  # 二级分类code
-    customer_id = db.Column(db.BigInteger)
+    customer_id = db.Column(BigIntPK)
     customer_name = db.Column(db.String(100))
     customer_phone = db.Column(db.String(20))
     customer_address = db.Column(db.String(255))  # 客户地址
@@ -62,21 +63,21 @@ class WorkOrder(db.Model):
 
     # 结算相关
     settlement_status = db.Column(db.Integer, default=0)  # 结算状态 0未结算 1已结算
-    settlement_account_id = db.Column(db.BigInteger)  # 结算账户
+    settlement_account_id = db.Column(BigIntPK)  # 结算账户
     settlement_time = db.Column(db.DateTime)  # 结算时间
 
     # 派单相关
-    assigned_user_id = db.Column(db.BigInteger)  # 指派技师
+    assigned_user_id = db.Column(BigIntPK)  # 指派技师
     assigned_user_name = db.Column(db.String(50))  # 技师姓名
     assigned_time = db.Column(db.DateTime)  # 指派时间
 
     # 报价关联
-    quote_id = db.Column(db.BigInteger)  # 关联报价单
+    quote_id = db.Column(BigIntPK)  # 关联报价单
     quote_confirmed = db.Column(db.Integer, default=0)  # 报价确认 0未确认 1已确认
     quote_confirm_time = db.Column(db.DateTime)  # 报价确认时间
 
     # 设备接收单
-    receive_order_id = db.Column(db.BigInteger)  # 关联接件单
+    receive_order_id = db.Column(BigIntPK)  # 关联接件单
     receive_confirmed = db.Column(db.Integer, default=0)  # 接收确认 0未确认 1已确认
     receive_confirm_time = db.Column(db.DateTime)  # 接收确认时间
     customer_sign = db.Column(db.String(255))  # 客户签字图片
@@ -87,19 +88,19 @@ class WorkOrder(db.Model):
     actual_time = db.Column(db.DateTime)  # 实际完成时间
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
-    created_by = db.Column(db.BigInteger)
+    created_by = db.Column(BigIntPK)
 
     # ========== 新增通用字段 ==========
     customer_company = db.Column(db.String(200))  # 客户单位
     customer_office = db.Column(db.String(200))  # 办公室
-    receiver_id = db.Column(db.BigInteger)  # 接待员工ID
+    receiver_id = db.Column(BigIntPK)  # 接待员工ID
     receiver_name = db.Column(db.String(50))  # 接待员工姓名
     need_bring_back = db.Column(db.Integer, default=0)  # 是否需带回维修(0否1是)
-    receive_order_id = db.Column(db.BigInteger)  # 关联接件单ID
-    related_quote_id = db.Column(db.BigInteger)  # 关联报价单ID
-    related_purchase_id = db.Column(db.BigInteger)  # 关联采购单ID
-    related_sales_id = db.Column(db.BigInteger)  # 关联销售单ID
-    related_finance_id = db.Column(db.BigInteger)  # 关联财务记录ID
+    receive_order_id = db.Column(BigIntPK)  # 关联接件单ID
+    related_quote_id = db.Column(BigIntPK)  # 关联报价单ID
+    related_purchase_id = db.Column(BigIntPK)  # 关联采购单ID
+    related_sales_id = db.Column(BigIntPK)  # 关联销售单ID
+    related_finance_id = db.Column(BigIntPK)  # 关联财务记录ID
     auto_dispatch = db.Column(db.Integer, default=0)  # 派单方式(0手动1自动)
     dispatch_rule = db.Column(db.String(100))  # 派单规则
     labor_hours = db.Column(db.Numeric(10, 2))  # 工时
@@ -191,9 +192,9 @@ class WorkOrder(db.Model):
 class WorkOrderPart(db.Model):
     """工单配件明细"""
     __tablename__ = 'work_order_part'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    wo_id = db.Column(db.BigInteger, nullable=False)
-    product_id = db.Column(db.BigInteger)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    wo_id = db.Column(BigIntPK, nullable=False)
+    product_id = db.Column(BigIntPK)
     product_name = db.Column(db.String(200))
     product_code = db.Column(db.String(50))
     specification = db.Column(db.String(200))  # 规格
@@ -211,8 +212,8 @@ class WorkOrderPart(db.Model):
 class WorkOrderQuoteItem(db.Model):
     """工单报价配件明细"""
     __tablename__ = 'work_order_quote_item'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    work_order_id = db.Column(db.BigInteger, nullable=False, index=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    work_order_id = db.Column(BigIntPK, nullable=False, index=True)
     product_name = db.Column(db.String(200), nullable=False)
     spec = db.Column(db.String(200))
     unit = db.Column(db.String(50))
@@ -225,13 +226,13 @@ class WorkOrderQuoteItem(db.Model):
 class WorkOrderLog(db.Model):
     """工单操作日志"""
     __tablename__ = 'work_order_log'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    wo_id = db.Column(db.BigInteger, nullable=False)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    wo_id = db.Column(BigIntPK, nullable=False)
     action = db.Column(db.String(50))
     old_status = db.Column(db.Integer)
     new_status = db.Column(db.Integer)
     content = db.Column(db.Text)
-    operator_id = db.Column(db.BigInteger)
+    operator_id = db.Column(BigIntPK)
     operator_name = db.Column(db.String(50))
     created_at = db.Column(db.DateTime, default=datetime.now)
 
@@ -239,8 +240,8 @@ class WorkOrderLog(db.Model):
 class WorkOrderExtend(db.Model):
     """工单扩展信息（关联表存储接单方式、处理方式等）"""
     __tablename__ = 'work_order_extend'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    wo_id = db.Column(db.BigInteger, nullable=False, index=True)  # 工单ID
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    wo_id = db.Column(BigIntPK, nullable=False, index=True)  # 工单ID
     order_source = db.Column(db.String(20))  # 接单方式: wechat/phone/other
     service_type = db.Column(db.String(20))  # 处理方式: onsite/remote
     created_at = db.Column(db.DateTime, default=datetime.now)
@@ -250,9 +251,9 @@ class WorkOrderExtend(db.Model):
 class WoCustomerPart(db.Model):
     """工单客户需求配件（只做信息记录，不直接扣库存）"""
     __tablename__ = 'wo_customer_part'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    wo_id = db.Column(db.BigInteger, nullable=False, index=True)
-    product_id = db.Column(db.BigInteger)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    wo_id = db.Column(BigIntPK, nullable=False, index=True)
+    product_id = db.Column(BigIntPK)
     product_name = db.Column(db.String(200))
     specification = db.Column(db.String(200))
     quantity = db.Column(db.Float, default=1)

@@ -1,27 +1,28 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class ReceiveOrder(db.Model):
     """接件单"""
     __tablename__ = 'receive_order'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     receive_no = db.Column(db.String(50), unique=True, nullable=False)
-    customer_id = db.Column(db.BigInteger)
+    customer_id = db.Column(BigIntPK)
     customer_name = db.Column(db.String(100))
     customer_phone = db.Column(db.String(20))
     receive_type = db.Column(db.Integer, default=1)  # 1本店修 2外送修
-    external_shop_id = db.Column(db.BigInteger)  # 外送供应商ID
+    external_shop_id = db.Column(BigIntPK)  # 外送供应商ID
     external_shop_name = db.Column(db.String(100))  # 外送供应商名称
     status = db.Column(db.Integer, default=0)  # 状态见 RO_STATUS_MAP
     total_amount = db.Column(db.Numeric(15, 2), default=0.00)
     paid_amount = db.Column(db.Numeric(15, 2), default=0.00)
     remark = db.Column(db.Text)
     # 接待/维修员工
-    receiver_id = db.Column(db.BigInteger)  # 接待员工ID
+    receiver_id = db.Column(BigIntPK)  # 接待员工ID
     receiver_name = db.Column(db.String(50))  # 接待员工姓名
-    engineer_id = db.Column(db.BigInteger)  # 维修工程师ID
+    engineer_id = db.Column(BigIntPK)  # 维修工程师ID
     engineer_name = db.Column(db.String(50))  # 维修工程师姓名
     # 检测信息
     detect_result = db.Column(db.Text)  # 检测结果
@@ -51,18 +52,18 @@ class ReceiveOrder(db.Model):
     notify_time = db.Column(db.DateTime)  # 通知取件时间
     notify_method = db.Column(db.String(20))  # 通知方式
     complete_time = db.Column(db.DateTime)  # 完成时间
-    finance_record_id = db.Column(db.BigInteger)  # 关联财务记录ID
+    finance_record_id = db.Column(BigIntPK)  # 关联财务记录ID
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
-    created_by = db.Column(db.BigInteger)
+    created_by = db.Column(BigIntPK)
 
 
 class ReceiveOrderDevice(db.Model):
     """接件单设备明细"""
     __tablename__ = 'receive_order_device'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    receive_order_id = db.Column(db.BigInteger, nullable=False)
-    device_archive_id = db.Column(db.BigInteger)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    receive_order_id = db.Column(BigIntPK, nullable=False)
+    device_archive_id = db.Column(BigIntPK)
     device_type = db.Column(db.String(50))
     device_brand = db.Column(db.String(50))
     device_model = db.Column(db.String(100))
@@ -71,7 +72,7 @@ class ReceiveOrderDevice(db.Model):
     fault_desc = db.Column(db.Text)
     appearance_desc = db.Column(db.Text)
     accessories = db.Column(db.Text)
-    work_order_id = db.Column(db.BigInteger)  # 关联工单ID
+    work_order_id = db.Column(BigIntPK)  # 关联工单ID
     status = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.now)
     # 设备详细信息
@@ -95,9 +96,9 @@ class ReceiveOrderDevice(db.Model):
 class ReceiveOrderPart(db.Model):
     """接件单维修配件/领料明细"""
     __tablename__ = 'receive_order_part'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    receive_order_id = db.Column(db.BigInteger, nullable=False)  # 关联接件单ID
-    product_id = db.Column(db.BigInteger)  # 商品ID
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    receive_order_id = db.Column(BigIntPK, nullable=False)  # 关联接件单ID
+    product_id = db.Column(BigIntPK)  # 商品ID
     product_name = db.Column(db.String(200))  # 商品名称
     product_code = db.Column(db.String(50))  # 商品编码
     specification = db.Column(db.String(100))  # 规格
@@ -107,8 +108,8 @@ class ReceiveOrderPart(db.Model):
     total_price = db.Column(db.Numeric(10, 2), default=0.00)  # 总价
     cost_price = db.Column(db.Numeric(10, 2), default=0.00)  # 成本价
     source = db.Column(db.Integer, default=1)  # 来源(1库存/2采购)
-    inventory_out_item_id = db.Column(db.BigInteger)  # 关联出库明细ID
-    purchase_order_item_id = db.Column(db.BigInteger)  # 关联采购明细ID
+    inventory_out_item_id = db.Column(BigIntPK)  # 关联出库明细ID
+    purchase_order_item_id = db.Column(BigIntPK)  # 关联采购明细ID
     status = db.Column(db.Integer, default=0)  # 状态(0待领/1已领/2已采购)
     remark = db.Column(db.Text)  # 备注
     created_at = db.Column(db.DateTime, default=datetime.now)
@@ -117,9 +118,9 @@ class ReceiveOrderPart(db.Model):
 class DeviceArchive(db.Model):
     """设备档案"""
     __tablename__ = 'device_archive'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     device_code = db.Column(db.String(50), unique=True)
-    customer_id = db.Column(db.BigInteger)
+    customer_id = db.Column(BigIntPK)
     device_type = db.Column(db.String(50))
     device_name = db.Column(db.String(200))
     device_brand = db.Column(db.String(50))

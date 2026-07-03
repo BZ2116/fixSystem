@@ -1,13 +1,14 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class PrintTemplate(db.Model):
     """打印模板"""
     __tablename__ = 'print_template'
     __table_args__ = {'extend_existing': True}
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     template_name = db.Column(db.String(100), nullable=False)
     template_type = db.Column(db.String(50))  # work_order, receive, dispatch, quote, sale, purchase, return_purchase, return_sale, inventory_in, inventory_out, inventory_check, transfer, receivable, payable, receipt, payment, salary
     description = db.Column(db.String(200))

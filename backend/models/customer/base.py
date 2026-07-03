@@ -1,12 +1,13 @@
 from datetime import datetime
 
 from extensions import db
+from models._base import BigIntPK
 
 
 class BaseCustomer(db.Model):
     """客户信息"""
     __tablename__ = 'base_customer'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     customer_code = db.Column(db.String(50), unique=True)
     customer_name = db.Column(db.String(100), nullable=False)
     customer_type = db.Column(db.Integer, default=1)  # 1:个人 2:企业

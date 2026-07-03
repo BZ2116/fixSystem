@@ -6,14 +6,15 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class PurchaseOrder(db.Model):
     """采购单"""
     __tablename__ = 'purchase_order'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     order_no = db.Column(db.String(50), unique=True, nullable=False)
-    supplier_id = db.Column(db.BigInteger)
+    supplier_id = db.Column(BigIntPK)
     supplier_name = db.Column(db.String(100))
     order_date = db.Column(db.Date)
     delivery_date = db.Column(db.Date)
@@ -22,7 +23,7 @@ class PurchaseOrder(db.Model):
     status = db.Column(db.Integer, default=0)  # 0待审核 1已审核 2已完成 3已取消
     has_invoice = db.Column(db.Integer, default=0)  # 0未收发票 1已收发票
     remark = db.Column(db.Text)
-    created_by = db.Column(db.BigInteger)
+    created_by = db.Column(BigIntPK)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
@@ -30,9 +31,9 @@ class PurchaseOrder(db.Model):
 class PurchaseOrderItem(db.Model):
     """采购单明细"""
     __tablename__ = 'purchase_order_item'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    order_id = db.Column(db.BigInteger, nullable=False)
-    product_id = db.Column(db.BigInteger)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    order_id = db.Column(BigIntPK, nullable=False)
+    product_id = db.Column(BigIntPK)
     product_name = db.Column(db.String(200))
     specification = db.Column(db.String(100))
     unit = db.Column(db.String(20))

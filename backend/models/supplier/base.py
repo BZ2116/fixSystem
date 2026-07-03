@@ -1,12 +1,13 @@
 from datetime import datetime
 
 from extensions import db
+from .._base import BigIntPK
 
 
 class BaseSupplier(db.Model):
     """供应商信息"""
     __tablename__ = 'base_supplier'
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
     supplier_code = db.Column(db.String(50), unique=True)
     supplier_name = db.Column(db.String(100), nullable=False)
     pinyin_code = db.Column(db.String(100))
