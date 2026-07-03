@@ -107,7 +107,7 @@ rm -f verify_bigint.db backend/instance/dev.db backend/instance/instance_smoke.d
 
 ### 3.5 Phase 4 — archive 清理
 
-README 里写了「归档清理（2026-07-14 后执行）」，今天 7/3 已过期（虽然 7/14 还没到，但开发节奏已经走到这一步）。
+README 里写了「归档清理（2026-07-14 后执行）」。原计划 7/14 后清理，本 spec 提前到本次收尾一并完成，理由：本次「验证 + 收尾」工作已经把 archive 的唯一外部引用（`docs/archive/database_complete_v3.sql` 作为 schema 参考用途）消费完毕，无遗留依赖。
 
 **执行**：
 ```bash
