@@ -132,14 +132,6 @@ build_portable.bat 2026.06.30
 - `data/logs/flask.log`
 - `data/logs/vite.log`
 
-## 归档清理（2026-07-14 后执行）
-
-两个过渡性目录将在 2 周后删除：
-- `docs/archive/docker-configs/` —— 旧 docker 文件
-- `docs/archive/database_complete_v3.sql` —— MySQL 原版 schema（参考用）
-
-届时会再发一个 commit 完成清理。
-
 ## 许可证
 
 本项目仅供学习和内部使用。
