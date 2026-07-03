@@ -74,3 +74,6 @@ Thumbs.db
 
 # 便携包产物
 repair-system-portable-*.zip
+
+# 测试运行时 SQLite 实例（conftest / smoke 产生）
+backend/instance/
