@@ -421,8 +421,8 @@ def get_pending_dispatch():
     for o in orders:
         if o.receiver_id:
             user_ids.add(o.receiver_id)
-        if o.engineer_user_id:
-            user_ids.add(o.engineer_user_id)
+        if o.assigned_user_id:
+            user_ids.add(o.assigned_user_id)
     users_map = {}
     if user_ids:
         for u in SysUser.query.filter(SysUser.id.in_(user_ids)).all():
@@ -432,7 +432,7 @@ def get_pending_dispatch():
     for o in orders:
         d = to_dict(o)
         d['receiver_name'] = users_map.get(o.receiver_id, '')
-        d['engineer_user_name'] = users_map.get(o.engineer_user_id, '')
+        d['engineer_user_name'] = users_map.get(o.assigned_user_id, '')
         d['device_brand'] = o.device_brand or ''
         d['device_model'] = o.device_model or ''
         d['device_sn'] = o.device_sn or ''
