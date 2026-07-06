@@ -45,6 +45,7 @@ from flask import Blueprint, jsonify, request, send_file
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from extensions import db
+from app.security import permission
 from app.utils import generate_code, to_dict
 
 logger = logging.getLogger(__name__)
@@ -105,7 +106,7 @@ def _generate_asset_no():
 # ============================================
 
 @bp.route('/api/sales/orders', methods=['GET'])
-@jwt_required()
+@permission('sales:view')
 def get_sales_orders():
     """获取销售单列表"""
     from models.sales.order import SalesOrder
@@ -191,7 +192,7 @@ def get_sales_orders():
 
 
 @bp.route('/api/sales/orders/<int:id>', methods=['GET'])
-@jwt_required()
+@permission('sales:view')
 def get_sales_order(id):
     """获取销售单详情"""
     from models.sales.order import SalesOrder, SalesOrderItem
@@ -210,7 +211,7 @@ def get_sales_order(id):
 
 
 @bp.route('/api/sales/orders', methods=['POST'])
-@jwt_required()
+@permission('sales:add')
 def create_sales_order():
     """创建销售单"""
     from models.sales.order import SalesOrder, SalesOrderItem
@@ -269,7 +270,7 @@ def create_sales_order():
 
 
 @bp.route('/api/sales/orders/<int:id>', methods=['PUT'])
-@jwt_required()
+@permission('sales:edit')
 def update_sales_order(id):
     """更新销售单"""
     from models.sales.order import SalesOrder, SalesOrderItem
@@ -322,7 +323,7 @@ def update_sales_order(id):
 
 
 @bp.route('/api/sales/orders/<int:id>', methods=['DELETE'])
-@jwt_required()
+@permission('sales:delete')
 def delete_sales_order(id):
     """删除销售单"""
     from models.sales.order import SalesOrder
@@ -341,7 +342,7 @@ def delete_sales_order(id):
 
 
 @bp.route('/api/sales/orders/<int:id>/audit', methods=['POST'])
-@jwt_required()
+@permission('sales:edit')
 def audit_sales_order(id):
     """审核销售单 - 自动出库、扣减库存、生成应收账款和财务流水"""
     from models.sales.order import SalesOrder, SalesOrderItem
@@ -525,7 +526,7 @@ def audit_sales_order(id):
 
 
 @bp.route('/api/sales/orders/<int:id>/print', methods=['GET'])
-@jwt_required()
+@permission('sales:view')
 def print_sales_order(id):
     """打印销售单/收据"""
     from models.sales.order import SalesOrder, SalesOrderItem
@@ -577,7 +578,7 @@ def print_sales_order(id):
 
 
 @bp.route('/api/sales/orders/export', methods=['GET'])
-@jwt_required()
+@permission('sales:view')
 def export_sales_orders():
     """导出销售单"""
     from models.sales.order import SalesOrder
@@ -629,7 +630,7 @@ def export_sales_orders():
 
 
 @bp.route('/api/sales/orders/<int:order_id>/assets', methods=['POST'])
-@jwt_required()
+@permission('sales:edit')
 def create_assets_for_sales_order(order_id):
     """销售单创建时同步创建资产"""
     from models.sales.order import SalesOrder
@@ -730,7 +731,7 @@ def create_assets_for_sales_order(order_id):
 
 
 @bp.route('/api/sales/orders/<int:order_id>/assets', methods=['GET'])
-@jwt_required()
+@permission('sales:view')
 def get_sales_order_assets(order_id):
     """获取销售单关联的资产"""
     from models.sales.order import SalesOrder

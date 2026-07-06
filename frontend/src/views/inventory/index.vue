@@ -10,7 +10,7 @@
             </el-form-item>
             <el-form-item>
               <el-button type="primary" :icon="Search" @click="fetchStock">搜索</el-button>
-              <el-button type="success" :icon="Download" @click="handleExportStock">导出</el-button>
+              <el-button type="success" :icon="Download" @click="handleExportStock" v-permission="'inventory:view'">导出</el-button>
             </el-form-item>
           </el-form>
           

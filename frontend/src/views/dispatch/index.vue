@@ -122,7 +122,7 @@
             </el-table-column>
             <el-table-column label="操作" width="120" fixed="right" align="center">
               <template #default="{ row }">
-                <el-button type="primary" link size="small" @click="handleDispatch(row)">派单</el-button>
+                <el-button type="primary" link size="small" v-permission="'dispatch:edit'" @click="handleDispatch(row)">派单</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -208,6 +208,7 @@
                   size="small"
                   @click="handleRedirect(row)"
                   v-if="row.accept_status === 0 || row.accept_status === 2"
+                  v-permission="'dispatch:edit'"
                 >改派</el-button>
               </template>
             </el-table-column>
@@ -364,7 +365,7 @@
 
       <template #footer>
         <el-button @click="dispatchDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitDispatch" :loading="dispatchLoading" :disabled="!selectedStaffId">
+        <el-button type="primary" v-permission="'dispatch:edit'" @click="submitDispatch" :loading="dispatchLoading" :disabled="!selectedStaffId">
           确认派单
         </el-button>
       </template>
@@ -434,7 +435,7 @@
 
       <template #footer>
         <el-button @click="redirectDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitRedirect" :loading="redirectLoading" :disabled="!redirectStaffId">
+        <el-button type="primary" v-permission="'dispatch:edit'" @click="submitRedirect" :loading="redirectLoading" :disabled="!redirectStaffId">
           确认改派
         </el-button>
       </template>

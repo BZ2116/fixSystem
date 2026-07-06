@@ -30,7 +30,7 @@ from werkzeug.security import generate_password_hash
 
 from extensions import db
 from app.utils import to_dict
-from app.security import get_current_user_id
+from app.security import get_current_user_id, permission
 
 logger = logging.getLogger(__name__)
 
@@ -1048,6 +1048,7 @@ def build_permission_tree(permissions):
 
 @bp.route('/api/settings/roles', methods=['GET'])
 @jwt_required()
+@permission('settings-roles:view')
 def get_roles():
     """获取角色列表（分页、搜索）"""
     from models.system import SysRole
@@ -1079,6 +1080,7 @@ def get_roles():
 
 @bp.route('/api/settings/roles/all', methods=['GET'])
 @jwt_required()
+@permission('settings-roles:view')
 def get_all_roles():
     """获取所有启用角色（下拉选择用）"""
     from models.system import SysRole
@@ -1090,6 +1092,7 @@ def get_all_roles():
 
 @bp.route('/api/settings/roles', methods=['POST'])
 @jwt_required()
+@permission('settings-roles:add')
 def create_role():
     """创建角色"""
     from models.system import SysRole
@@ -1118,6 +1121,7 @@ def create_role():
 
 @bp.route('/api/settings/roles/<int:role_id>', methods=['PUT'])
 @jwt_required()
+@permission('settings-roles:edit')
 def update_role(role_id):
     """更新角色"""
     from models.system import SysRole
@@ -1157,6 +1161,7 @@ def update_role(role_id):
 
 @bp.route('/api/settings/roles/<int:role_id>', methods=['DELETE'])
 @jwt_required()
+@permission('settings-roles:delete')
 def delete_role(role_id):
     """删除角色（不能删除admin角色）"""
     from models.system import SysRole, SysUser
@@ -1178,6 +1183,7 @@ def delete_role(role_id):
 
 @bp.route('/api/settings/roles/<int:role_id>/permissions', methods=['GET'])
 @jwt_required()
+@permission('settings-roles:view')
 def get_role_permissions(role_id):
     """获取角色权限（返回权限树）"""
     from models.system import SysRole, SysPermission
@@ -1213,6 +1219,7 @@ def get_role_permissions(role_id):
 
 @bp.route('/api/settings/roles/<int:role_id>/permissions', methods=['POST'])
 @jwt_required()
+@permission('settings-roles:permission')
 def set_role_permissions(role_id):
     """配置角色权限（接收permission_ids列表）"""
     from models.system import SysRole, SysPermission
@@ -1356,6 +1363,7 @@ def delete_permission(perm_id):
 
 @bp.route('/api/settings/users', methods=['GET'])
 @jwt_required()
+@permission('settings-users:view')
 def get_settings_users():
     """获取用户列表（分页、搜索keyword、status筛选）"""
     from models.system import SysUser, SysRole
@@ -1406,6 +1414,7 @@ def get_settings_users():
 
 @bp.route('/api/settings/users', methods=['POST'])
 @jwt_required()
+@permission('settings-users:add')
 def create_user():
     """创建用户"""
     from models.system import SysUser
@@ -1445,6 +1454,7 @@ def create_user():
 
 @bp.route('/api/settings/users/<int:user_id>', methods=['PUT'])
 @jwt_required()
+@permission('settings-users:edit')
 def update_user(user_id):
     """更新用户"""
     from models.system import SysUser
@@ -1478,6 +1488,7 @@ def update_user(user_id):
 
 @bp.route('/api/settings/users/<int:user_id>', methods=['DELETE'])
 @jwt_required()
+@permission('settings-users:delete')
 def delete_user(user_id):
     """删除用户（不能删除自己、不能删除admin）"""
     from models.system import SysUser
@@ -1502,6 +1513,7 @@ def delete_user(user_id):
 
 @bp.route('/api/settings/users/<int:user_id>/status', methods=['PUT'])
 @jwt_required()
+@permission('settings-users:edit')
 def toggle_user_status(user_id):
     """启用/禁用用户"""
     from models.system import SysUser
@@ -1525,6 +1537,7 @@ def toggle_user_status(user_id):
 
 @bp.route('/api/settings/users/<int:user_id>/password', methods=['PUT'])
 @jwt_required()
+@permission('settings-users:password')
 def reset_user_password(user_id):
     """重置密码"""
     from models.system import SysUser
@@ -1547,6 +1560,7 @@ def reset_user_password(user_id):
 
 @bp.route('/api/settings/users/<int:user_id>/roles', methods=['PUT'])
 @jwt_required()
+@permission('settings-users:role')
 def assign_user_role(user_id):
     """分配角色（接收role_id）"""
     from models.system import SysUser, SysRole

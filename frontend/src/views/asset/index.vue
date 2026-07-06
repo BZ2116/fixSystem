@@ -133,13 +133,13 @@
 
     <!-- 3. 操作按钮行 -->
     <div class="toolbar" v-if="selectedCustomerId">
-      <el-button type="primary" @click="handleAdd">
+      <el-button v-permission="'asset:add'" type="primary" @click="handleAdd">
         <el-icon><Plus /></el-icon>新增资产
       </el-button>
-      <el-button @click="handleBatchImport">
+      <el-button v-permission="'asset:add'" @click="handleBatchImport">
         <el-icon><Upload /></el-icon>批量导入
       </el-button>
-      <el-button @click="handleBatchExport">
+      <el-button v-permission="'asset:view'" @click="handleBatchExport">
         <el-icon><Download /></el-icon>批量导出
       </el-button>
       <el-button @click="handlePrint">
@@ -193,9 +193,9 @@
       <el-table-column label="操作" width="220" fixed="right">
         <template #default="{ row }">
           <el-button link type="primary" size="small" @click="handleDetail(row)">详情</el-button>
-          <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-          <el-button link type="warning" size="small" @click="handleScrap(row)" v-if="row.status !== 'scrap'">报废</el-button>
-          <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+          <el-button v-permission="'asset:edit'" link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+          <el-button v-permission="'asset:delete'" link type="warning" size="small" @click="handleScrap(row)" v-if="row.status !== 'scrap'">报废</el-button>
+          <el-button v-permission="'asset:delete'" link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

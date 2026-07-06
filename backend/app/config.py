@@ -22,7 +22,11 @@ class Config:
     # JWT
     JWT_SECRET_KEY = os.environ['JWT_SECRET_KEY']
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
-    JWT_TOKEN_LOCATION = ['cookies']
+    # 支持 cookie（自动登录）+ Authorization header（前端显式传）
+    # CSRF 仅 cookie 模式校验，header 模式不要求
+    # header 优先：前端发 Authorization 时走 header 鉴权 → 无 CSRF
+    # cookie 兜底：未带 header 时从 cookie 读（需 CSRF，仅 GET 安全方法生效）
+    JWT_TOKEN_LOCATION = ['headers', 'cookies']
     JWT_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'false').lower() == 'true'
     JWT_COOKIE_HTTPONLY = True
     JWT_COOKIE_SAMESITE = os.environ.get('COOKIE_SAMESITE', 'Lax')

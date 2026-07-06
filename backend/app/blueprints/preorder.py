@@ -22,7 +22,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from extensions import db
 from app.utils import to_dict, generate_code
-from app.security import get_current_user_id
+from app.security import permission, get_current_user_id
 
 bp = Blueprint('preorder', __name__)
 logger = logging.getLogger(__name__)
@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 @bp.route('/api/pre-orders', methods=['GET'])
 @jwt_required()
+@permission('preorder:view')
 def get_preorders():
     """获取预订单列表"""
     from models.inventory.flow import PreOrder
@@ -64,6 +65,7 @@ def get_preorders():
 
 @bp.route('/api/pre-orders/<int:id>', methods=['GET'])
 @jwt_required()
+@permission('preorder:view')
 def get_preorder(id):
     """获取预订单详情"""
     from models.inventory.flow import PreOrder, PreOrderItem
@@ -75,6 +77,7 @@ def get_preorder(id):
 
 @bp.route('/api/pre-orders', methods=['POST'])
 @jwt_required()
+@permission('preorder:add')
 def create_preorder():
     """创建预订单"""
     from models.inventory.flow import PreOrder, PreOrderItem
@@ -124,6 +127,7 @@ def create_preorder():
 
 @bp.route('/api/pre-orders/<int:id>', methods=['PUT'])
 @jwt_required()
+@permission('preorder:edit')
 def update_preorder(id):
     """更新预订单"""
     from models.inventory.flow import PreOrder, PreOrderItem
@@ -163,6 +167,7 @@ def update_preorder(id):
 
 @bp.route('/api/pre-orders/<int:id>', methods=['DELETE'])
 @jwt_required()
+@permission('preorder:delete')
 def delete_preorder(id):
     """删除预订单"""
     from models.inventory.flow import PreOrder
@@ -175,6 +180,7 @@ def delete_preorder(id):
 
 @bp.route('/api/pre-orders/<int:id>/convert', methods=['POST'])
 @jwt_required()
+@permission('preorder:edit')
 def convert_preorder(id):
     """预订单转正式单据"""
     from models.inventory.flow import PreOrder, PreOrderItem

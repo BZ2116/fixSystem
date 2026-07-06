@@ -5,7 +5,7 @@
         <div class="card-header">
           <span>库存变动明细</span>
           <div class="header-actions">
-            <el-button type="success" :icon="Download" @click="handleExport">导出</el-button>
+            <el-button type="success" :icon="Download" @click="handleExport" v-permission="'inventory-log:view'">导出</el-button>
           </div>
         </div>
       </template>

@@ -43,6 +43,7 @@ from flask import Blueprint, jsonify, request, send_file
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from extensions import db
+from app.security import permission
 from app.utils import export_to_excel, generate_code, to_dict
 
 logger = logging.getLogger(__name__)
@@ -69,7 +70,7 @@ def _get_current_user_name():
 # ============================================
 
 @bp.route('/api/inventory/stock', methods=['GET'])
-@jwt_required()
+@permission('inventory:view', 'inventory-in:view', 'inventory-out:view')
 def get_inventory_stock():
     """获取库存列表"""
     from models.inventory.stock import InventoryStock
@@ -151,7 +152,7 @@ def get_inventory_stock():
 
 
 @bp.route('/api/inventory/stock/export', methods=['GET'])
-@jwt_required()
+@permission('inventory:view')
 def export_inventory_stock():
     """导出库存查询结果"""
     from models.inventory.stock import InventoryStock
@@ -231,7 +232,7 @@ def export_inventory_stock():
 # ============================================
 
 @bp.route('/api/inventory/in', methods=['GET'])
-@jwt_required()
+@permission('inventory-in:view')
 def get_inventory_in_list():
     """获取入库单列表"""
     from models.inventory.flow import InventoryIn
@@ -270,7 +271,7 @@ def get_inventory_in_list():
 
 
 @bp.route('/api/inventory/in/<int:id>', methods=['GET'])
-@jwt_required()
+@permission('inventory-in:view')
 def get_inventory_in(id):
     """获取入库单详情"""
     from models.inventory.flow import InventoryIn, InventoryInItem
@@ -288,7 +289,7 @@ def get_inventory_in(id):
 
 
 @bp.route('/api/inventory/in', methods=['POST'])
-@jwt_required()
+@permission('inventory-in:add')
 def create_inventory_in():
     """创建入库单"""
     from models.inventory.flow import InventoryIn, InventoryInItem
@@ -347,7 +348,7 @@ def create_inventory_in():
 
 
 @bp.route('/api/inventory/in/<int:id>/audit', methods=['POST'])
-@jwt_required()
+@permission('inventory-in:edit')
 def audit_inventory_in(id):
     """审核入库单"""
     from models.inventory.flow import InventoryIn, InventoryInItem
@@ -439,7 +440,7 @@ def audit_inventory_in(id):
 
 
 @bp.route('/api/inbound/orders/export', methods=['GET'])
-@jwt_required()
+@permission('inventory-in:view')
 def export_inbound_orders():
     """导出入库单"""
     from models.inventory.flow import InventoryIn, InventoryInItem
@@ -507,7 +508,7 @@ def export_inbound_orders():
 # ============================================
 
 @bp.route('/api/inventory/out', methods=['GET'])
-@jwt_required()
+@permission('inventory-out:view')
 def get_inventory_out_list():
     """获取出库单列表"""
     from models.inventory.flow import InventoryOut
@@ -546,7 +547,7 @@ def get_inventory_out_list():
 
 
 @bp.route('/api/inventory/out', methods=['POST'])
-@jwt_required()
+@permission('inventory-out:add')
 def create_inventory_out():
     """创建出库单"""
     from models.inventory.flow import InventoryOut, InventoryOutItem
@@ -605,7 +606,7 @@ def create_inventory_out():
 
 
 @bp.route('/api/inventory/out/<int:id>/audit', methods=['POST'])
-@jwt_required()
+@permission('inventory-out:edit')
 def audit_inventory_out(id):
     """审核出库单"""
     from models.inventory.flow import InventoryOut, InventoryOutItem
@@ -688,7 +689,7 @@ def audit_inventory_out(id):
 
 
 @bp.route('/api/outbound/orders/export', methods=['GET'])
-@jwt_required()
+@permission('inventory-out:view')
 def export_outbound_orders():
     """导出出库单"""
     from models.inventory.flow import InventoryOut, InventoryOutItem

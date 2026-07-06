@@ -24,7 +24,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from extensions import db
 from app.utils import to_dict, generate_code
-from app.security import get_current_user_id
+from app.security import get_current_user_id, permission
 
 bp = Blueprint('return_order', __name__)
 logger = logging.getLogger(__name__)
@@ -41,6 +41,7 @@ def _get_current_user_name():
 
 
 @bp.route('/api/return-orders', methods=['GET'])
+@permission('purchase-return:view', 'sales-return:view')
 @jwt_required()
 def get_return_orders():
     """获取退货单列表"""
@@ -69,6 +70,7 @@ def get_return_orders():
     return jsonify({'code': 200, 'data': {'list': [to_dict(o) for o in orders], 'total': total}})
 
 @bp.route('/api/return-orders/<int:id>', methods=['GET'])
+@permission('purchase-return:view', 'sales-return:view')
 @jwt_required()
 def get_return_order(id):
     """获取退货单详情"""
@@ -80,6 +82,7 @@ def get_return_order(id):
     return jsonify({'code': 200, 'data': order_dict})
 
 @bp.route('/api/return-orders', methods=['POST'])
+@permission('purchase-return:add', 'sales-return:add')
 @jwt_required()
 def create_return_order():
     """创建退货单"""
@@ -136,6 +139,7 @@ def create_return_order():
     return jsonify({'code': 200, 'message': '创建成功', 'data': {'id': order.id, 'return_no': return_no}})
 
 @bp.route('/api/return-orders/<int:id>/audit', methods=['POST'])
+@permission('purchase-return:edit', 'sales-return:edit')
 @jwt_required()
 def audit_return_order(id):
     """审核退货单 - 自动处理库存、冲减应收/应付账款并生成财务流水"""
@@ -415,6 +419,7 @@ def audit_return_order(id):
         return jsonify({'code': 500, 'message': f'审核失败：{str(e)}'}), 500
 
 @bp.route('/api/return-orders/<int:id>/stock-in', methods=['POST'])
+@permission('purchase-return:edit', 'sales-return:edit')
 @jwt_required()
 def stock_in_return_order(id):
     """退货入库 - 更新库存、写入库存日志、更新商品现存量"""
@@ -511,6 +516,7 @@ def stock_in_return_order(id):
         return jsonify({'code': 500, 'message': f'入库失败：{str(e)}'}), 500
 
 @bp.route('/api/return-orders/<int:id>', methods=['DELETE'])
+@permission('purchase-return:delete', 'sales-return:delete')
 @jwt_required()
 def delete_return_order(id):
     """取消退货单"""

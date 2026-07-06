@@ -5,8 +5,8 @@
         <div class="card-header">
           <span>调拨管理</span>
           <div class="header-actions">
-            <el-button type="success" :icon="Download" @click="handleExport">导出</el-button>
-            <el-button type="primary" :icon="Plus" @click="handleAdd">新建调拨单</el-button>
+            <el-button type="success" :icon="Download" @click="handleExport" v-permission="'transfer:view'">导出</el-button>
+            <el-button type="primary" :icon="Plus" @click="handleAdd" v-permission="'transfer:add'">新建调拨单</el-button>
           </div>
         </div>
       </template>
@@ -68,8 +68,8 @@
         <el-table-column label="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="handleView(row)">详情</el-button>
-            <el-button type="success" link size="small" @click="handleAudit(row)" v-if="row.status === 0">审核</el-button>
-            <el-button type="danger" link size="small" @click="handleDelete(row)" v-if="row.status === 0">删除</el-button>
+            <el-button type="success" link size="small" @click="handleAudit(row)" v-if="row.status === 0" v-permission="'transfer:edit'">审核</el-button>
+            <el-button type="danger" link size="small" @click="handleDelete(row)" v-if="row.status === 0" v-permission="'transfer:edit'">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

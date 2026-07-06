@@ -10,6 +10,7 @@ from flask import Blueprint, Response, request
 from flask_jwt_extended import jwt_required
 
 from extensions import db
+from app.security import permission
 from app.utils import (
     export_to_excel,
     generate_code,
@@ -32,6 +33,7 @@ ALLOWED_EXCEL_MIME = {
 
 @bp.route('', methods=['GET'])
 @jwt_required()
+@permission('supplier:view')
 def list_suppliers():
     """获取供应商列表（仅 status=1，按 created_at desc 排序）。"""
     from models.supplier import BaseSupplier
@@ -84,6 +86,7 @@ def list_suppliers():
 
 @bp.route('/<int:sid>', methods=['GET'])
 @jwt_required()
+@permission('supplier:view')
 def get_supplier(sid):
     """获取供应商详情。"""
     from models.supplier import BaseSupplier
@@ -98,6 +101,7 @@ def get_supplier(sid):
 
 @bp.route('', methods=['POST'])
 @jwt_required()
+@permission('supplier:add')
 def create_supplier():
     """创建供应商（自动生成 supplier_code 和 pinyin_code）。"""
     from models.supplier import BaseSupplier
@@ -135,6 +139,7 @@ def create_supplier():
 
 @bp.route('/<int:sid>', methods=['PUT'])
 @jwt_required()
+@permission('supplier:edit')
 def update_supplier(sid):
     """更新供应商。"""
     from models.supplier import BaseSupplier
@@ -160,6 +165,7 @@ def update_supplier(sid):
 
 @bp.route('/<int:sid>', methods=['DELETE'])
 @jwt_required()
+@permission('supplier:delete')
 def delete_supplier(sid):
     """软删除供应商（status=0）。"""
     from models.supplier import BaseSupplier
@@ -175,6 +181,7 @@ def delete_supplier(sid):
 
 @bp.route('/export', methods=['GET'])
 @jwt_required()
+@permission('supplier:view')
 def export_suppliers():
     """导出供应商 Excel。"""
     from models.supplier import BaseSupplier
@@ -211,6 +218,7 @@ def export_suppliers():
 
 @bp.route('/import', methods=['POST'])
 @jwt_required()
+@permission('supplier:add')
 def import_suppliers():
     """导入供应商 Excel（带白名单校验 + 逐行错误收集）。"""
     from models.supplier import BaseSupplier
@@ -297,6 +305,7 @@ def import_suppliers():
 
 @bp.route('/batch-delete', methods=['POST'])
 @jwt_required()
+@permission('supplier:delete')
 def batch_delete_suppliers():
     """批量删除供应商（硬删除，与单条软删除保持原行为差异）。"""
     from models.supplier import BaseSupplier

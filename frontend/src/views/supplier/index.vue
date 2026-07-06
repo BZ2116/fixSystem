@@ -5,14 +5,14 @@
         <div class="card-header">
           <span>供应商管理</span>
           <div class="header-actions">
-            <el-button type="success" :icon="Download" @click="handleExport">导出</el-button>
-            <el-button type="warning" :icon="Upload" @click="handleImport">导入</el-button>
-            <el-button type="primary" :icon="Plus" @click="handleAdd">新增供应商</el-button>
+            <el-button type="success" :icon="Download" v-permission="'supplier:view'" @click="handleExport">导出</el-button>
+            <el-button type="warning" :icon="Upload" v-permission="'supplier:add'" @click="handleImport">导入</el-button>
+            <el-button type="primary" :icon="Plus" v-permission="'supplier:add'" @click="handleAdd">新增供应商</el-button>
           </div>
         </div>
         <!-- 批量操作工具栏 -->
         <div v-if="selectedSuppliers.length > 0" class="batch-toolbar">
-          <el-button type="danger" @click="handleBatchDelete">
+          <el-button type="danger" v-permission="'supplier:delete'" @click="handleBatchDelete">
             <el-icon><Delete /></el-icon>
             批量删除
           </el-button>
@@ -65,8 +65,8 @@
         <el-table-column prop="created_at" label="创建时间" width="160" />
         <el-table-column label="操作" width="150" fixed="right" align="center">
           <template #default="{ row }">
-            <el-button type="primary" link :icon="Edit" @click="handleEdit(row)">编辑</el-button>
-            <el-button type="danger" link :icon="Delete" @click="handleDelete(row)">删除</el-button>
+            <el-button type="primary" link :icon="Edit" v-permission="'supplier:edit'" @click="handleEdit(row)">编辑</el-button>
+            <el-button type="danger" link :icon="Delete" v-permission="'supplier:delete'" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

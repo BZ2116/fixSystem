@@ -33,7 +33,7 @@ import openpyxl
 
 from extensions import db
 from app.utils import to_dict
-from app.security import get_current_user_id
+from app.security import permission, get_current_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +78,7 @@ def _generate_asset_no():
 
 @bp.route('/api/asset/types', methods=['GET'])
 @jwt_required()
+@permission('asset:view')
 def get_asset_types():
     """获取资产类型列表"""
     from models.asset.asset import AssetType
@@ -103,6 +104,7 @@ def get_asset_types():
 
 @bp.route('/api/assets', methods=['GET'])
 @jwt_required()
+@permission('asset:view')
 def get_assets():
     """资产列表查询"""
     from models.asset.asset import Asset, AssetType
@@ -179,6 +181,7 @@ def get_assets():
 
 @bp.route('/api/assets/<int:id>', methods=['GET'])
 @jwt_required()
+@permission('asset:view')
 def get_asset(id):
     """获取资产详情"""
     from models.asset.asset import Asset
@@ -202,6 +205,7 @@ def get_asset(id):
 
 @bp.route('/api/assets', methods=['POST'])
 @jwt_required()
+@permission('asset:add')
 def create_asset():
     """创建资产"""
     from models.asset.asset import Asset, AssetType
@@ -288,6 +292,7 @@ def create_asset():
 
 @bp.route('/api/assets/<int:id>', methods=['PUT'])
 @jwt_required()
+@permission('asset:edit')
 def update_asset(id):
     """更新资产"""
     from models.asset.asset import Asset, AssetType
@@ -347,6 +352,7 @@ def update_asset(id):
 
 @bp.route('/api/assets/<int:id>', methods=['DELETE'])
 @jwt_required()
+@permission('asset:delete')
 def delete_asset(id):
     """删除资产（软删除，将状态设为停用）"""
     from models.asset.asset import Asset
@@ -371,6 +377,7 @@ def delete_asset(id):
 
 @bp.route('/api/assets/<int:id>/scrap', methods=['POST'])
 @jwt_required()
+@permission('asset:delete')
 def scrap_asset(id):
     """资产报废"""
     from models.asset.asset import Asset
@@ -399,6 +406,7 @@ def scrap_asset(id):
 
 @bp.route('/api/assets/import', methods=['POST'])
 @jwt_required()
+@permission('asset:add')
 def import_assets():
     """批量导入资产"""
     from models.asset.asset import Asset, AssetType
@@ -504,6 +512,7 @@ def import_assets():
 
 @bp.route('/api/assets/export', methods=['GET'])
 @jwt_required()
+@permission('asset:view')
 def export_assets():
     """导出资产"""
     from models.asset.asset import Asset
@@ -582,6 +591,7 @@ def export_assets():
 
 @bp.route('/api/assets/by-customer', methods=['GET'])
 @jwt_required()
+@permission('asset:view')
 def get_assets_by_customer():
     """根据客户获取资产列表（用于销售模块关联）"""
     from models.asset.asset import Asset
@@ -623,6 +633,7 @@ def get_assets_by_customer():
 
 @bp.route('/api/sales/orders/<int:order_id>/assets', methods=['POST'])
 @jwt_required()
+@permission('sales:add')
 def create_assets_for_sales_order(order_id):
     """销售单创建时同步创建资产"""
     from models.asset.asset import Asset, AssetType
@@ -702,6 +713,7 @@ def create_assets_for_sales_order(order_id):
 
 @bp.route('/api/sales/returns/<int:return_id>/unbind-assets', methods=['POST'])
 @jwt_required()
+@permission('sales-return:edit')
 def unbind_assets_for_return(return_id):
     """销售退货解绑资产"""
     from models.asset.asset import Asset
@@ -736,6 +748,7 @@ def unbind_assets_for_return(return_id):
 
 @bp.route('/api/sales/orders/<int:order_id>/assets', methods=['GET'])
 @jwt_required()
+@permission('sales:view')
 def get_sales_order_assets(order_id):
     """获取销售单关联的资产"""
     from models.asset.asset import Asset

@@ -36,10 +36,11 @@ export const useUserStore = defineStore('user', () => {
     const res = await loginApi(credentials)
     if (res.code === 200) {
       setToken(res.data.token)
-      userInfo.value = res.data.user
+      // 注意：后端 auth.py 登录响应字段是 userInfo（不是 user）
+      userInfo.value = res.data.userInfo
       // 保存登录返回的权限
-      if (res.data.user?.permissions) {
-        permissions.value = res.data.user.permissions
+      if (res.data.userInfo?.permissions) {
+        permissions.value = res.data.userInfo.permissions
       }
       return res
     }

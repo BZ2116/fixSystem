@@ -33,6 +33,7 @@ from flask import Blueprint, jsonify, request, send_file
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from extensions import db
+from app.security import permission
 from app.utils import generate_code, to_dict
 
 logger = logging.getLogger(__name__)
@@ -77,7 +78,7 @@ def _get_current_user_name():
 # ============================================
 
 @bp.route('/api/purchase/orders', methods=['GET'])
-@jwt_required()
+@permission('purchase:view')
 def get_purchase_orders():
     """获取采购单列表"""
     from models.purchase.order import PurchaseOrder
@@ -155,7 +156,7 @@ def get_purchase_orders():
 
 
 @bp.route('/api/purchase/orders/<int:id>', methods=['GET'])
-@jwt_required()
+@permission('purchase:view')
 def get_purchase_order(id):
     """获取采购单详情"""
     from models.purchase.order import PurchaseOrder, PurchaseOrderItem
@@ -174,7 +175,7 @@ def get_purchase_order(id):
 
 
 @bp.route('/api/purchase/orders', methods=['POST'])
-@jwt_required()
+@permission('purchase:add')
 def create_purchase_order():
     """创建采购单"""
     from models.purchase.order import PurchaseOrder, PurchaseOrderItem
@@ -233,7 +234,7 @@ def create_purchase_order():
 
 
 @bp.route('/api/purchase/orders/<int:id>', methods=['PUT'])
-@jwt_required()
+@permission('purchase:edit')
 def update_purchase_order(id):
     """更新采购单"""
     from models.purchase.order import PurchaseOrder, PurchaseOrderItem
@@ -289,7 +290,7 @@ def update_purchase_order(id):
 
 
 @bp.route('/api/purchase/orders/<int:id>', methods=['DELETE'])
-@jwt_required()
+@permission('purchase:delete')
 def delete_purchase_order(id):
     """删除采购单"""
     from models.purchase.order import PurchaseOrder
@@ -308,7 +309,7 @@ def delete_purchase_order(id):
 
 
 @bp.route('/api/purchase/orders/<int:id>/audit', methods=['POST'])
-@jwt_required()
+@permission('purchase:edit')
 def audit_purchase_order(id):
     """审核采购单 - 自动入库、更新库存、生成应付账款和财务流水"""
     from models.purchase.order import PurchaseOrder, PurchaseOrderItem
@@ -498,7 +499,7 @@ def audit_purchase_order(id):
 
 
 @bp.route('/api/purchase/orders/export', methods=['GET'])
-@jwt_required()
+@permission('purchase:view')
 def export_purchase_orders():
     """导出采购单"""
     from models.purchase.order import PurchaseOrder
@@ -547,7 +548,7 @@ def export_purchase_orders():
 
 
 @bp.route('/api/purchase/orders/<int:order_id>/invoice', methods=['POST'])
-@jwt_required()
+@permission('purchase:edit')
 def create_purchase_order_invoice(order_id):
     """为采购单创建发票"""
     from models.purchase.order import PurchaseOrder
@@ -613,7 +614,7 @@ def create_purchase_order_invoice(order_id):
 # ============================================
 
 @bp.route('/api/purchase/invoices', methods=['GET'])
-@jwt_required()
+@permission('purchase:view')
 def get_purchase_invoices():
     """采购发票列表"""
     from models.finance import PurchaseInvoice
@@ -686,7 +687,7 @@ def get_purchase_invoices():
 
 
 @bp.route('/api/purchase/invoices/<int:id>', methods=['GET'])
-@jwt_required()
+@permission('purchase:view')
 def get_purchase_invoice_detail(id):
     """采购发票详情"""
     from models.finance import PurchaseInvoice
@@ -728,7 +729,7 @@ def get_purchase_invoice_detail(id):
 
 
 @bp.route('/api/purchase/invoices', methods=['POST'])
-@jwt_required()
+@permission('purchase:edit')
 def create_purchase_invoice():
     """创建采购发票"""
     from models.purchase.order import PurchaseOrder
@@ -800,7 +801,7 @@ def create_purchase_invoice():
 
 
 @bp.route('/api/purchase/invoices/<int:id>', methods=['PUT'])
-@jwt_required()
+@permission('purchase:edit')
 def update_purchase_invoice(id):
     """更新采购发票"""
     from models.finance import PurchaseInvoice
@@ -853,7 +854,7 @@ def update_purchase_invoice(id):
 
 
 @bp.route('/api/purchase/invoices/<int:id>', methods=['DELETE'])
-@jwt_required()
+@permission('purchase:delete')
 def delete_purchase_invoice(id):
     """删除采购发票（软删除，设为已作废）"""
     from models.finance import PurchaseInvoice
@@ -880,7 +881,7 @@ def delete_purchase_invoice(id):
 
 
 @bp.route('/api/purchase/invoices/<int:id>/certify', methods=['POST'])
-@jwt_required()
+@permission('purchase:edit')
 def certify_purchase_invoice(id):
     """采购发票认证"""
     from models.finance import PurchaseInvoice
@@ -910,7 +911,7 @@ def certify_purchase_invoice(id):
 
 
 @bp.route('/api/purchase/invoices/<int:id>/deduct', methods=['POST'])
-@jwt_required()
+@permission('purchase:edit')
 def deduct_purchase_invoice(id):
     """采购发票抵扣"""
     from models.finance import PurchaseInvoice

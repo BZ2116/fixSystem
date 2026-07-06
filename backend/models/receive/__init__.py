@@ -8,6 +8,7 @@ from .order import (
     DeviceArchive,
     ReceiveOrder,
     ReceiveOrderDevice,
+    ReceiveOrderLog,
     ReceiveOrderPart,
 )
 
@@ -18,5 +19,6 @@ __all__ = [
     'DeviceReceiveOrder',
     'ReceiveOrder',
     'ReceiveOrderDevice',
+    'ReceiveOrderLog',
     'ReceiveOrderPart',
 ]

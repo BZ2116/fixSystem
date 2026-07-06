@@ -5,9 +5,9 @@
         <div class="card-header">
           <span>采购管理</span>
           <div class="header-actions">
-            <el-button type="success" :icon="Download" @click="handleExport">导出</el-button>
-            <el-button type="warning" :icon="Upload" @click="handleImport">导入</el-button>
-            <el-button type="primary" :icon="Plus" @click="handleAdd">新建采购单</el-button>
+            <el-button type="success" :icon="Download" @click="handleExport" v-permission="'purchase:view'">导出</el-button>
+            <el-button type="warning" :icon="Upload" @click="handleImport" v-permission="'purchase:add'">导入</el-button>
+            <el-button type="primary" :icon="Plus" @click="handleAdd" v-permission="'purchase:add'">新建采购单</el-button>
           </div>
         </div>
       </template>
@@ -84,9 +84,9 @@
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="handleView(row)">详情</el-button>
             <el-button type="info" link size="small" @click="handlePrint(row)">打印</el-button>
-            <el-button type="primary" link size="small" @click="handleEdit(row)" v-if="row.status === 0">编辑</el-button>
-            <el-button type="success" link size="small" @click="handleAudit(row)" v-if="row.status === 0">审核</el-button>
-            <el-button type="danger" link size="small" @click="handleDelete(row)" v-if="row.status === 0">删除</el-button>
+            <el-button type="primary" link size="small" @click="handleEdit(row)" v-if="row.status === 0" v-permission="'purchase:edit'">编辑</el-button>
+            <el-button type="success" link size="small" @click="handleAudit(row)" v-if="row.status === 0" v-permission="'purchase:edit'">审核</el-button>
+            <el-button type="danger" link size="small" @click="handleDelete(row)" v-if="row.status === 0" v-permission="'purchase:delete'">删除</el-button>
             <el-button
               v-if="row.status === 1 && row.has_invoice !== 1"
               type="primary"

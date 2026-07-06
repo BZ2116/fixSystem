@@ -5,7 +5,7 @@
         <div class="card-header">
           <span>库存盘点</span>
           <div class="header-actions">
-            <el-button type="primary" :icon="Plus" @click="handleAdd">新增盘点单</el-button>
+            <el-button type="primary" :icon="Plus" @click="handleAdd" v-permission="'inventory-check:add'">新增盘点单</el-button>
           </div>
         </div>
       </template>
@@ -70,10 +70,10 @@
         <el-table-column label="操作" width="280" fixed="right" align="center">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="handleView(row)">详情</el-button>
-            <el-button type="warning" link size="small" @click="handleEdit(row)" v-if="row.status < 2">盘点录入</el-button>
-            <el-button type="success" link size="small" @click="handleComplete(row)" v-if="row.status < 2">完成盘点</el-button>
+            <el-button type="warning" link size="small" @click="handleEdit(row)" v-if="row.status < 2" v-permission="'inventory-check:edit'">盘点录入</el-button>
+            <el-button type="success" link size="small" @click="handleComplete(row)" v-if="row.status < 2" v-permission="'inventory-check:edit'">完成盘点</el-button>
             <el-button type="info" link size="small" @click="handleDiffReport(row)" v-if="row.status === 2">差异报表</el-button>
-            <el-button type="danger" link size="small" @click="handleCancel(row)" v-if="row.status < 2">取消</el-button>
+            <el-button type="danger" link size="small" @click="handleCancel(row)" v-if="row.status < 2" v-permission="'inventory-check:edit'">取消</el-button>
           </template>
         </el-table-column>
       </el-table>

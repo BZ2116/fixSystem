@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>付款管理</span>
-          <el-button type="primary" :icon="Plus" @click="handleAdd">新增付款</el-button>
+          <el-button type="primary" :icon="Plus" v-permission="'finance-payment:add'" @click="handleAdd">新增付款</el-button>
         </div>
       </template>
 

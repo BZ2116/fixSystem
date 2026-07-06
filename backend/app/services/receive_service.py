@@ -42,7 +42,7 @@ def _generate_ro_no():
 def add_ro_log(ro_id, action, old_status, new_status, content,
                operator_id=None, operator_name=None):
     """添加接件单操作日志。"""
-    from app import ReceiveOrderLog
+    from models.receive import ReceiveOrderLog
     log = ReceiveOrderLog(
         receive_order_id=ro_id,
         action=action,
@@ -579,20 +579,20 @@ def complete_receiveorder(order, data, user_id, user_name):
 # ============================================================
 
 def cancel_receiveorder(order, reason, user_id, user_name):
-    """取消接件单：任意状态 -> 已取消 14（除已完成 8 和已取消 14）。"""
-    if order.status == 8:
+    """取消接件单：任意状态 -> 已取消 15（除已完成 9 和已取消 15）。"""
+    if order.status == 9:
         raise ValueError('已完成的接件单不能取消')
-    if order.status == 14:
+    if order.status == 15:
         raise ValueError('接件单已取消，请勿重复操作')
 
     old_status = order.status
-    order.status = 14
+    order.status = 15
 
     add_ro_log(
         ro_id=order.id, action='取消',
-        old_status=old_status, new_status=14,
+        old_status=old_status, new_status=15,
         content=f'接件单已取消，原因：{reason or ""}',
         operator_id=user_id, operator_name=user_name,
     )
 
-    return {'status': 14, 'status_text': '已取消'}
+    return {'status': 15, 'status_text': '已取消'}

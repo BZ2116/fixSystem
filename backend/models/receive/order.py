@@ -152,3 +152,17 @@ class DeviceArchive(db.Model):
     status = db.Column(db.Integer, default=1)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+
+class ReceiveOrderLog(db.Model):
+    """接件单操作日志。"""
+    __tablename__ = 'receive_order_log'
+    id = db.Column(BigIntPK, primary_key=True, autoincrement=True)
+    receive_order_id = db.Column(BigIntPK, nullable=False, index=True)
+    action = db.Column(db.String(50))
+    old_status = db.Column(db.Integer)
+    new_status = db.Column(db.Integer)
+    content = db.Column(db.Text)
+    operator_id = db.Column(BigIntPK)
+    operator_name = db.Column(db.String(50))
+    created_at = db.Column(db.DateTime, default=datetime.now)

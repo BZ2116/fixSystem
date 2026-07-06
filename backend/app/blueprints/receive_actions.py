@@ -29,6 +29,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from extensions import db
+from app.security import permission
 from app.services.receive_service import (
     add_ro_log,
     allocate_receiveorder,
@@ -52,6 +53,7 @@ bp = Blueprint('receive_actions', __name__)
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/detect', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def detect_receiveorder(id):
     """工程师检测：已登记(0) -> 待报价(2) 或 送修外店(9)"""
@@ -123,6 +125,7 @@ def detect_receiveorder(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/quote', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def quote_receiveorder(id):
     """内店报价：待报价(2) -> 待客户确认(3)"""
@@ -172,9 +175,10 @@ def quote_receiveorder(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/confirm', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def confirm_receiveorder(id):
-    """客户确认/拒绝报价：待客户确认(3) -> 待领料(4) 或 已取消(14)"""
+    """客户确认/拒绝报价：待客户确认(3) -> 待领料(4) 或 客户拒绝报价(17)"""
     try:
         from models.receive import ReceiveOrder
 
@@ -202,7 +206,7 @@ def confirm_receiveorder(id):
         elif confirmed == 2:
             order.quote_confirmed = 2
             order.quote_confirm_time = datetime.now()
-            order.status = 14
+            order.status = 17
             content = f'客户拒绝报价，原因：{data.get("reject_reason", "")}'
         else:
             return jsonify({
@@ -234,6 +238,7 @@ def confirm_receiveorder(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/allocate', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def allocate_route(id):
     """领料/采购：待领料(4) -> 维修中(5)"""
@@ -281,6 +286,7 @@ def allocate_route(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/finish', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def finish_receiveorder(id):
     """完工提交：维修中(5) -> 待测试(6)"""
@@ -335,6 +341,7 @@ def finish_receiveorder(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/test', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def test_receiveorder(id):
     """设备测试：待测试(6) -> 待取件(7) 或 维修中(5)"""
@@ -398,6 +405,7 @@ def test_receiveorder(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/notify', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def notify_receiveorder(id):
     """通知取件：状态保持 7(待取件)"""
@@ -445,6 +453,7 @@ def notify_receiveorder(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/settle', methods=['POST'])
+@permission('receive:edit', 'finance:view')
 @jwt_required()
 def settle_route(id):
     """完工结算：待取件(7) -> 待结算(8)"""
@@ -487,6 +496,7 @@ def settle_route(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/complete', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def complete_route(id):
     """取件完成：待结算(8) -> 已完成(9)"""
@@ -525,6 +535,7 @@ def complete_route(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/external-send', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def external_send_receiveorder(id):
     """送修外店：检测中(1) 或 检测后无法维修(9) -> 送修外店(9)"""
@@ -577,6 +588,7 @@ def external_send_receiveorder(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/external-quote', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def external_quote_route(id):
     """外店报价：送修外店(9) -> 外店已报价(10)"""
@@ -622,6 +634,7 @@ def external_quote_route(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/customer-quote', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def customer_quote_route(id):
     """给客户报价：外店已报价(10) -> 待客户确认(3)"""
@@ -671,6 +684,7 @@ def customer_quote_route(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/external-confirm', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def external_confirm_receiveorder(id):
     """确认送修：待外店维修(11) -> 外店维修中(12)"""
@@ -717,6 +731,7 @@ def external_confirm_receiveorder(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/external-return', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def external_return_receiveorder(id):
     """取回设备：外店维修中(12) -> 外店取回待测试(13)"""
@@ -795,6 +810,7 @@ def external_return_receiveorder(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/external-retest', methods=['POST'])
+@permission('receive:edit')
 @jwt_required()
 def external_retest_receiveorder(id):
     """外店取回测试：外店取回待测试(13) -> 待取件(7) 或 送修外店(9)"""
@@ -858,6 +874,7 @@ def external_retest_receiveorder(id):
 # ============================================
 
 @bp.route('/api/receiveorders/<int:id>/cancel', methods=['POST'])
+@permission('receive:delete')
 @jwt_required()
 def cancel_route(id):
     """取消接件单：任意状态 -> 已取消(14)（除已完成 8 和已取消 14）"""

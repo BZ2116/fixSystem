@@ -59,6 +59,8 @@ body {
     border-bottom-color: var(--border-color);
     color: var(--primary-color);
     font-weight: bold;
+    margin-right: 0;
+    padding-right: 0;
   }
 }
 
@@ -98,6 +100,8 @@ body {
 .el-dialog__header {
   background-color: #F3E5F5;
   border-bottom: 1px solid var(--border-color);
+  margin-right: 0;
+  padding-right: 0;
   .el-dialog__title {
     color: var(--primary-color);
   }

@@ -38,7 +38,7 @@
 
         <!-- 工具栏 -->
         <div class="toolbar">
-          <el-button type="primary" @click="handleSalesAdd">新增销售发票</el-button>
+          <el-button type="primary" v-permission="'finance-invoice:add'" @click="handleSalesAdd">新增销售发票</el-button>
           <el-button type="danger" :disabled="!salesSelectedIds.length" @click="handleSalesBatchDelete">批量删除</el-button>
         </div>
 
@@ -92,7 +92,7 @@
           <el-table-column label="操作" fixed="right" min-width="220">
             <template #default="{ row }">
               <el-button type="success" link @click="handleSalesPrint(row)">打印</el-button>
-              <el-button type="primary" link @click="handleSalesEdit(row)">编辑</el-button>
+              <el-button type="primary" link v-permission="'finance-invoice:edit'" @click="handleSalesEdit(row)">编辑</el-button>
               <el-button type="danger" link @click="handleSalesDelete(row)">删除</el-button>
             </template>
           </el-table-column>
@@ -153,7 +153,7 @@
 
         <!-- 工具栏 -->
         <div class="toolbar">
-          <el-button type="primary" @click="handlePurchaseAdd">新增采购发票</el-button>
+          <el-button type="primary" v-permission="'finance-invoice:add'" @click="handlePurchaseAdd">新增采购发票</el-button>
           <el-button type="success" :disabled="!purchaseSelectedIds.length" @click="handlePurchaseBatchCertify">批量认证</el-button>
           <el-button type="warning" :disabled="!purchaseSelectedIds.length" @click="handlePurchaseBatchDeduct">批量抵扣</el-button>
           <el-button type="danger" :disabled="!purchaseSelectedIds.length" @click="handlePurchaseBatchDelete">批量删除</el-button>
@@ -211,7 +211,7 @@
           <el-table-column label="操作" fixed="right" min-width="280">
             <template #default="{ row }">
               <el-button type="success" link @click="handlePurchasePrint(row)">打印</el-button>
-              <el-button type="primary" link @click="handlePurchaseEdit(row)">编辑</el-button>
+              <el-button type="primary" link v-permission="'finance-invoice:edit'" @click="handlePurchaseEdit(row)">编辑</el-button>
               <el-button 
                 v-if="row.status === 'pending'" 
                 type="success" 

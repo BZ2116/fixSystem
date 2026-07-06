@@ -110,7 +110,8 @@
           <template #default="{ row }">
             <el-button type="info" link size="small" @click.stop="handleView(row)">详情</el-button>
             <template v-for="(btn, idx) in primaryActions[row.status] || []" :key="idx">
-              <el-button :type="btn.type" link size="small" @click.stop="handlePrimaryAction(btn.action, row)">{{ btn.label }}</el-button>
+              <el-button v-if="['dispatch', 'accept'].includes(btn.action)" v-permission="'dispatch:edit'" :type="btn.type" link size="small" @click.stop="handlePrimaryAction(btn.action, row)">{{ btn.label }}</el-button>
+              <el-button v-else :type="btn.type" link size="small" @click.stop="handlePrimaryAction(btn.action, row)">{{ btn.label }}</el-button>
             </template>
             <el-dropdown trigger="click" v-if="(moreActions[row.status] || []).length > 0 || (row.status !== 9 && row.status !== 10)">
               <el-button type="info" link size="small">
@@ -993,7 +994,10 @@
           <!-- 左侧：核心操作按钮 -->
           <div class="primary-actions">
             <template v-for="(btn, idx) in primaryActions[detailData.status] || []" :key="idx">
-              <el-button :type="btn.type" @click="handlePrimaryAction(btn.action, detailData)">
+              <el-button v-if="['dispatch', 'accept'].includes(btn.action)" v-permission="'dispatch:edit'" :type="btn.type" @click="handlePrimaryAction(btn.action, detailData)">
+                {{ btn.label }}
+              </el-button>
+              <el-button v-else :type="btn.type" @click="handlePrimaryAction(btn.action, detailData)">
                 {{ btn.label }}
               </el-button>
             </template>
@@ -1067,7 +1071,7 @@
       </el-form>
       <template #footer>
         <el-button @click="dispatchDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitDispatch" :loading="submitLoading">确认派单</el-button>
+        <el-button type="primary" v-permission="'dispatch:edit'" @click="submitDispatch" :loading="submitLoading">确认派单</el-button>
       </template>
     </el-dialog>
 

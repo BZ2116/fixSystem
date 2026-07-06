@@ -36,8 +36,8 @@ def configure_jwt(jwt_instance):
             ).first()
             return row is not None
         except Exception:
-            logger.warning('check_revoked DB error (fail-open)', exc_info=True)
-            return False
+            logger.error('check_revoked DB error (fail-closed)', exc_info=True)
+            return True
 
     @jwt_instance.revoked_token_loader
     def revoked_response(_jwt_header, _jwt_payload):

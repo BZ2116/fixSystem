@@ -49,9 +49,6 @@ def login():
     user.last_login_ip = request.remote_addr
     db.session.commit()
 
-    # 生成JWT令牌
-    access_token = create_access_token(identity=str(user.id))
-
     # 获取角色和权限信息
     role_name = ''
     role_code = ''
@@ -69,6 +66,15 @@ def login():
                 permissions = [p.code for p in all_perms]
             else:
                 permissions = perms
+
+    # 生成JWT令牌（携带 permissions / role_code 供前端与后端共享）
+    access_token = create_access_token(
+        identity=str(user.id),
+        additional_claims={
+            'permissions': permissions,
+            'role_code': role_code,
+        },
+    )
 
     response, status = ok({
         'token': access_token,

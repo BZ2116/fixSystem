@@ -28,9 +28,11 @@ import logging
 from datetime import datetime
 
 from flask import Blueprint, Response, jsonify, request, send_file
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt, jwt_required
 
 from extensions import db
+from app.security import permission
+from app.services.permission_helpers import claims_to_perms, is_wildcard_admin
 from app.utils import to_dict
 
 logger = logging.getLogger(__name__)
@@ -65,6 +67,7 @@ def _get_current_user_name():
 
 @bp.route('/api/dispatch/manual', methods=['POST'])
 @jwt_required()
+@permission('dispatch:edit')
 def manual_dispatch():
     """手动派单。"""
     from models.workorder import WorkOrder
@@ -116,6 +119,7 @@ def manual_dispatch():
 
 @bp.route('/api/dispatch/<int:record_id>/accept', methods=['POST'])
 @jwt_required()
+@permission('dispatch:edit')
 def accept_dispatch(record_id):
     """技术员接单。"""
     from models.workorder import WorkOrder
@@ -143,6 +147,7 @@ def accept_dispatch(record_id):
 
 @bp.route('/api/dispatch/<int:record_id>/reject', methods=['POST'])
 @jwt_required()
+@permission('dispatch:edit')
 def reject_dispatch(record_id):
     """技术员拒单。"""
     from models.dispatch.record import DispatchRecord, DispatchLog
@@ -166,6 +171,7 @@ def reject_dispatch(record_id):
 
 @bp.route('/api/dispatch/<int:record_id>/arrive', methods=['POST'])
 @jwt_required()
+@permission('dispatch:edit')
 def arrive_dispatch(record_id):
     """确认到达。"""
     from models.dispatch.record import DispatchRecord, DispatchLog
@@ -186,16 +192,19 @@ def arrive_dispatch(record_id):
 
 @bp.route('/api/dispatch/<int:record_id>/finish', methods=['POST'])
 @jwt_required()
+@permission('dispatch:edit')
 def finish_dispatch(record_id):
-    """确认完成。"""
+    """确认完成：技师完成工作后，工单进入'待结算'（status=5）等待财务结算。"""
+    from app.blueprints.workorder import WO_STATUS_MAP
     from models.workorder import WorkOrder
     from models.dispatch.record import DispatchRecord, DispatchLog
 
     record = DispatchRecord.query.get_or_404(record_id)
     record.finish_time = datetime.now()
     wo = WorkOrder.query.get(record.wo_id)
-    wo.status = 5  # 已完成
-    wo.status_name = '已完成'
+    # 派工完成 ≠ 结算完成：进入"待结算"状态，由财务/admin 走 settle 流程
+    wo.status = 5
+    wo.status_name = WO_STATUS_MAP.get(5, '待结算')
     wo.actual_time = datetime.now()
     log = DispatchLog(
         wo_id=record.wo_id,
@@ -211,6 +220,7 @@ def finish_dispatch(record_id):
 
 @bp.route('/api/dispatch/<int:record_id>/redirect', methods=['POST'])
 @jwt_required()
+@permission('dispatch:edit')
 def redirect_dispatch(record_id):
     """改派。"""
     from models.workorder import WorkOrder
@@ -259,6 +269,7 @@ def redirect_dispatch(record_id):
 
 @bp.route('/api/dispatch/records', methods=['GET'])
 @jwt_required()
+@permission('dispatch:view')
 def get_all_dispatch_records():
     """获取所有派单记录列表。"""
     from models.workorder import WorkOrder
@@ -310,6 +321,7 @@ def get_all_dispatch_records():
 
 @bp.route('/api/dispatch/records/<int:wo_id>', methods=['GET'])
 @jwt_required()
+@permission('dispatch:view')
 def get_dispatch_records(wo_id):
     """获取工单派单记录。"""
     from models.dispatch.record import DispatchRecord
@@ -324,6 +336,7 @@ def get_dispatch_records(wo_id):
 
 @bp.route('/api/dispatch/logs/<int:wo_id>', methods=['GET'])
 @jwt_required()
+@permission('dispatch:view')
 def get_dispatch_logs(wo_id):
     """获取工单派单日志。"""
     from models.dispatch.record import DispatchLog
@@ -338,12 +351,17 @@ def get_dispatch_logs(wo_id):
 
 @bp.route('/api/dispatch/staff-list', methods=['GET'])
 @jwt_required()
+@permission('dispatch:view')
 def get_staff_list():
-    """获取技术员列表（用于派单选择）。"""
+    """获取技术员列表（用于派单选择）。
+
+    隐私：非 admin 角色不返回 phone 字段（技师无需看到同事手机号）。
+    """
     from models.system import SysUser
     from models.dispatch.record import StaffStatus, DispatchRecord
 
     staff_list = SysUser.query.filter(SysUser.status == 1).all()
+    include_phone = is_wildcard_admin(claims_to_perms(get_jwt()))
     result = []
     for s in staff_list:
         ss = StaffStatus.query.filter_by(staff_id=s.id).first()
@@ -353,21 +371,24 @@ def get_staff_list():
             DispatchRecord.dispatch_time >= datetime.combine(today, datetime.min.time()),
             DispatchRecord.accept_status.in_([0, 1]),
         ).count()
-        result.append({
+        item = {
             'id': s.id,
             'name': s.real_name or s.username,
-            'phone': s.phone,
             'online_status': ss.online_status if ss else 0,
             'today_count': today_count,
             'max_daily': ss.max_daily if ss else 10,
             'skills': ss.skills if ss else '',
             'rating': float(ss.rating) if ss else 5.0,
-        })
+        }
+        if include_phone:
+            item['phone'] = s.phone
+        result.append(item)
     return jsonify({'code': 200, 'data': result})
 
 
 @bp.route('/api/dispatch/pending', methods=['GET'])
 @jwt_required()
+@permission('dispatch:view')
 def get_pending_dispatch():
     """获取待派单工单列表。"""
     from models.workorder import WorkOrder
@@ -398,8 +419,8 @@ def get_pending_dispatch():
     order_ids = [o.id for o in orders]
     user_ids = set()
     for o in orders:
-        if o.reception_user_id:
-            user_ids.add(o.reception_user_id)
+        if o.receiver_id:
+            user_ids.add(o.receiver_id)
         if o.engineer_user_id:
             user_ids.add(o.engineer_user_id)
     users_map = {}
@@ -410,7 +431,7 @@ def get_pending_dispatch():
     result = []
     for o in orders:
         d = to_dict(o)
-        d['reception_user_name'] = users_map.get(o.reception_user_id, '')
+        d['receiver_name'] = users_map.get(o.receiver_id, '')
         d['engineer_user_name'] = users_map.get(o.engineer_user_id, '')
         d['device_brand'] = o.device_brand or ''
         d['device_model'] = o.device_model or ''
@@ -429,6 +450,7 @@ def get_pending_dispatch():
 
 @bp.route('/api/dispatch/stats', methods=['GET'])
 @jwt_required()
+@permission('dispatch:view')
 def get_dispatch_stats():
     """获取派单统计（今日）。"""
     from models.dispatch.record import DispatchRecord
@@ -470,6 +492,7 @@ def get_dispatch_stats():
 
 @bp.route('/api/dispatchorders/export', methods=['GET'])
 @jwt_required()
+@permission('dispatch:view')
 def export_dispatch_orders():
     """导出派单记录。"""
     from models.workorder import WorkOrder

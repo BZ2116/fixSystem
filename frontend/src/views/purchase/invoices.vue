@@ -43,9 +43,9 @@
 
       <!-- 操作按钮行 -->
       <div class="toolbar">
-        <el-button type="primary" :icon="Plus" @click="handleAdd">新增发票</el-button>
+        <el-button type="primary" :icon="Plus" @click="handleAdd" v-permission="'purchase-invoice:add'">新增发票</el-button>
         <el-button type="success" :icon="Check" @click="handleBatchCertify" :disabled="selectedRows.length === 0">批量认证</el-button>
-        <el-button type="warning" :icon="Download" @click="handleExport">导出</el-button>
+        <el-button type="warning" :icon="Download" @click="handleExport" v-permission="'purchase-invoice:view'">导出</el-button>
       </div>
 
       <!-- 数据表格 -->
@@ -91,7 +91,7 @@
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">
-            <el-button type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
+            <el-button type="primary" link size="small" @click="handleEdit(row)" v-permission="'purchase-invoice:edit'">编辑</el-button>
             <el-button type="success" link size="small" @click="handleCertify(row)" v-if="row.status === 0">认证</el-button>
             <el-button type="warning" link size="small" @click="handleDeduct(row)" v-if="row.status === 1">抵扣</el-button>
             <el-button type="danger" link size="small" @click="handleDelete(row)" v-if="row.status === 0">删除</el-button>

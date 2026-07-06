@@ -233,8 +233,13 @@
               <Expand v-else />
             </el-icon>
             <el-breadcrumb separator="/">
-              <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-              <el-breadcrumb-item v-if="currentRoute">{{ currentRoute }}</el-breadcrumb-item>
+              <el-breadcrumb-item
+                v-for="(item, index) in breadcrumbItems"
+                :key="index"
+                :to="item.to"
+              >
+                {{ item.label }}
+              </el-breadcrumb-item>
             </el-breadcrumb>
           </div>
 
@@ -256,34 +261,7 @@
           </div>
         </div>
 
-        <!-- 标签栏 -->
-        <div class="tabs-wrapper">
-          <el-tabs
-            v-model="activeTab"
-            type="card"
-            class="tabs-nav"
-            @tab-click="handleTabClick"
-            @tab-remove="handleTabRemove"
-          >
-            <el-tab-pane
-              v-for="tab in tabsStore.tabList"
-              :key="tab.path"
-              :label="tab.name"
-              :name="tab.path"
-              :closable="tab.closable"
-            />
-          </el-tabs>
-          <el-dropdown class="tabs-more" @command="handleTabsCommand">
-            <el-icon class="more-icon"><ArrowDown /></el-icon>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="closeOther">关闭其他</el-dropdown-item>
-                <el-dropdown-item command="closeAll">关闭全部</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
-      </el-header>
+        </el-header>
 
       <!-- 主内容区 -->
       <el-main class="main">
@@ -298,23 +276,49 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import { useTabsStore } from '@/stores/tabs'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
-const tabsStore = useTabsStore()
 
 const isCollapse = ref(false)
 
 const activeMenu = computed(() => route.path)
 
-const currentRoute = computed(() => {
-  return route.meta?.title || ''
+// 面包屑分组名映射
+const groupLabelMap = {
+  front: '前台管理',
+  material: '物资管理',
+  warehouse: '库房管理',
+  finance: '财务管理',
+  partner: '往来单位管理',
+  system: '系统管理',
+}
+
+const getGroupByPath = (path) => {
+  const code = menuPermissionMap[path]
+  if (!code) return null
+  for (const [group, codes] of Object.entries(groupPermissionMap)) {
+    if (codes.includes(code)) return group
+  }
+  return null
+}
+
+const breadcrumbItems = computed(() => {
+  const items = [{ label: '首页', to: '/' }]
+  if (route.path === '/dashboard') return items
+  const group = getGroupByPath(route.path)
+  if (group && groupLabelMap[group]) {
+    items.push({ label: groupLabelMap[group] })
+  }
+  if (route.meta?.title) {
+    items.push({ label: route.meta.title })
+  }
+  return items
 })
 
 // 菜单权限code映射
@@ -390,52 +394,6 @@ const hasGroupPermission = (group) => {
   const codes = groupPermissionMap[group]
   if (!codes) return true
   return codes.some(code => userStore.permissions.includes(code))
-}
-
-// 标签栏相关
-const activeTab = computed({
-  get: () => tabsStore.currentTab,
-  set: (val) => tabsStore.setActiveTab(val)
-})
-
-// 监听路由变化，自动添加标签
-watch(
-  () => route,
-  (newRoute) => {
-    if (newRoute.path !== '/login') {
-      tabsStore.addTab(newRoute)
-    }
-  },
-  { immediate: true, deep: true }
-)
-
-// 点击标签切换
-const handleTabClick = (tab) => {
-  const path = tab.props.name
-  if (path !== route.path) {
-    router.push(path)
-  }
-}
-
-// 关闭标签
-const handleTabRemove = (targetPath) => {
-  const nextPath = tabsStore.removeTab(targetPath)
-  if (nextPath) {
-    router.push(nextPath)
-  }
-}
-
-// 标签更多操作
-const handleTabsCommand = (command) => {
-  switch (command) {
-    case 'closeOther':
-      tabsStore.closeOtherTabs(route.path)
-      break
-    case 'closeAll':
-      const homePath = tabsStore.closeAllTabs()
-      router.push(homePath)
-      break
-  }
 }
 
 const handleCommand = (command) => {
@@ -550,100 +508,6 @@ const handleCommand = (command) => {
       .username {
         margin: 0 8px;
         color: #333;
-      }
-    }
-  }
-
-  // 标签栏样式
-  .tabs-wrapper {
-    display: flex;
-    align-items: center;
-    background: #f5f7fa;
-    border-top: 1px solid #e4e7ed;
-    padding: 0 20px;
-    height: 40px;
-
-    .tabs-nav {
-      flex: 1;
-
-      :deep(.el-tabs__header) {
-        margin: 0;
-        border-bottom: none;
-      }
-
-      :deep(.el-tabs__nav) {
-        border: none;
-        border-radius: 0;
-      }
-
-      :deep(.el-tabs__item) {
-        height: 32px;
-        line-height: 32px;
-        padding: 0 16px;
-        margin-right: 4px;
-        border: 1px solid #dcdfe6;
-        border-radius: 4px 4px 0 0;
-        background: #fff;
-        color: #606266;
-        font-size: 13px;
-        transition: all 0.3s;
-
-        &:hover {
-          color: var(--primary-color);
-          background: #f0e6f5;
-        }
-
-        &.is-active {
-          color: #fff;
-          background: linear-gradient(135deg, #6A1B9A 0%, #9C27B0 100%);
-          border-color: var(--primary-color);
-
-          .el-icon {
-            color: #fff;
-          }
-        }
-
-        .el-icon-close {
-          margin-left: 6px;
-          font-size: 12px;
-          width: 14px;
-          height: 14px;
-          line-height: 14px;
-          border-radius: 50%;
-          transition: all 0.3s;
-
-          &:hover {
-            background: rgba(255, 255, 255, 0.3);
-          }
-        }
-      }
-
-      :deep(.el-tabs__nav-prev),
-      :deep(.el-tabs__nav-next) {
-        line-height: 32px;
-        color: #606266;
-
-        &:hover {
-          color: var(--primary-color);
-        }
-      }
-    }
-
-    .tabs-more {
-      margin-left: 10px;
-      cursor: pointer;
-
-      .more-icon {
-        font-size: 16px;
-        color: #606266;
-        padding: 6px;
-        border-radius: 4px;
-        transition: all 0.3s;
-
-        &:hover {
-          color: var(--primary-color);
-          background: #e8e8e8;
-        }
       }
     }
   }

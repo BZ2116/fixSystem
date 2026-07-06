@@ -6,7 +6,7 @@
           <span>收款管理</span>
           <div class="header-actions">
             <el-button type="success" :icon="Download" @click="handleExport">导出</el-button>
-            <el-button type="primary" :icon="Plus" @click="handleAdd">新增收款</el-button>
+            <el-button type="primary" :icon="Plus" v-permission="'finance-receipt:add'" @click="handleAdd">新增收款</el-button>
           </div>
         </div>
       </template>

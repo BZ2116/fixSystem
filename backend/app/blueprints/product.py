@@ -12,9 +12,9 @@ Task 29 "删除调试路由" 阶段处理。
 from datetime import datetime
 
 from flask import Blueprint, Response, request
-from flask_jwt_extended import jwt_required
 
 from extensions import db
+from app.security import permission
 from app.utils import (
     export_to_excel,
     generate_code,
@@ -83,7 +83,7 @@ def check_business_record(ids):
 # ============================================
 
 @bp.route('', methods=['GET'])
-@jwt_required()
+@permission('product:view')
 def list_products():
     """获取商品列表。"""
     from models.product.info import ProductInfo
@@ -156,7 +156,7 @@ def list_products():
 
 
 @bp.route('/<int:pid>', methods=['GET'])
-@jwt_required()
+@permission('product:view')
 def get_product(pid):
     """获取商品详情。"""
     from models.product.info import ProductInfo, ProductUnit, ProductUnitRel
@@ -198,7 +198,7 @@ def get_product(pid):
 
 
 @bp.route('', methods=['POST'])
-@jwt_required()
+@permission('product:add')
 def create_product():
     """创建商品。"""
     from models.product.info import ProductInfo, ProductUnitRel
@@ -295,7 +295,7 @@ def create_product():
 
 
 @bp.route('/<int:pid>', methods=['PUT'])
-@jwt_required()
+@permission('product:edit')
 def update_product(pid):
     """更新商品。"""
     from models.product.info import ProductInfo, ProductUnitRel
@@ -339,7 +339,7 @@ def update_product(pid):
 
 
 @bp.route('/<int:pid>', methods=['DELETE'])
-@jwt_required()
+@permission('product:delete')
 def delete_product(pid):
     """软删除商品（status=0）。"""
     from models.product.info import ProductInfo
@@ -358,7 +358,7 @@ def delete_product(pid):
 # ============================================
 
 @bp.route('/export', methods=['GET'])
-@jwt_required()
+@permission('product:view')
 def export_products():
     """导出商品 Excel。"""
     from models.product.info import ProductInfo
@@ -403,7 +403,7 @@ def export_products():
 
 
 @bp.route('/import', methods=['POST'])
-@jwt_required()
+@permission('product:add')
 def import_products():
     """导入商品 Excel（带白名单校验 + 逐行错误收集）。"""
     from models.product.info import ProductInfo
@@ -546,7 +546,7 @@ def read_excel_data_with_err(file):
 # ============================================
 
 @bp.route('/batch-update-category', methods=['POST'])
-@jwt_required()
+@permission('product:edit')
 def batch_update_category():
     """批量修改分类。"""
     from models.product.info import ProductInfo
@@ -572,7 +572,7 @@ def batch_update_category():
 
 
 @bp.route('/batch-update-price', methods=['POST'])
-@jwt_required()
+@permission('product:edit')
 def batch_update_price():
     """批量修改价格。"""
     from models.product.info import ProductInfo
@@ -601,7 +601,7 @@ def batch_update_price():
 
 
 @bp.route('/batch-update-stock-warning', methods=['POST'])
-@jwt_required()
+@permission('product:edit')
 def batch_update_stock_warning():
     """批量设置库存预警。"""
     from models.product.info import ProductInfo
@@ -628,7 +628,7 @@ def batch_update_stock_warning():
 
 
 @bp.route('/batch-update-sort', methods=['POST'])
-@jwt_required()
+@permission('product:edit')
 def batch_update_sort():
     """批量修改排序。"""
     from models.product.info import ProductInfo
@@ -652,7 +652,7 @@ def batch_update_sort():
 
 
 @bp.route('/batch-disable', methods=['POST'])
-@jwt_required()
+@permission('product:edit')
 def batch_disable():
     """批量禁用。"""
     from models.product.info import ProductInfo
@@ -673,7 +673,7 @@ def batch_disable():
 
 
 @bp.route('/batch-enable', methods=['POST'])
-@jwt_required()
+@permission('product:edit')
 def batch_enable():
     """批量启用。"""
     from models.product.info import ProductInfo
@@ -694,7 +694,7 @@ def batch_enable():
 
 
 @bp.route('/batch-delete', methods=['POST'])
-@jwt_required()
+@permission('product:delete')
 def batch_delete_products():
     """批量删除商品（硬删除，前置业务记录校验）。"""
     from models.product.info import ProductInfo

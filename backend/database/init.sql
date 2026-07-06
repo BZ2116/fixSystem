@@ -1182,6 +1182,19 @@ CREATE TABLE work_order_log (
     created_at DATETIME
 );
 
+CREATE TABLE receive_order_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    receive_order_id INTEGER NOT NULL,
+    action TEXT,
+    old_status INTEGER,
+    new_status INTEGER,
+    content TEXT,
+    operator_id INTEGER,
+    operator_name TEXT,
+    created_at DATETIME
+);
+CREATE INDEX idx_receive_order_log_ro_id ON receive_order_log(receive_order_id);
+
 CREATE TABLE work_order_extend (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     wo_id INTEGER NOT NULL,

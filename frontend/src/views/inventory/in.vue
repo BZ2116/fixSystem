@@ -5,8 +5,8 @@
         <div class="card-header">
           <span>入库管理</span>
           <div class="header-actions">
-            <el-button type="success" :icon="Download" @click="handleExportInbound">导出</el-button>
-            <el-button type="primary" :icon="Plus" @click="handleAdd">新增入库</el-button>
+            <el-button type="success" :icon="Download" @click="handleExportInbound" v-permission="'inventory-in:view'">导出</el-button>
+            <el-button type="primary" :icon="Plus" @click="handleAdd" v-permission="'inventory-in:add'">新增入库</el-button>
           </div>
         </div>
       </template>
@@ -72,8 +72,8 @@
         <el-table-column label="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="handleView(row)">详情</el-button>
-            <el-button type="success" link size="small" @click="handleAudit(row)" v-if="row.status === 0">审核</el-button>
-            <el-button type="danger" link size="small" @click="handleCancel(row)" v-if="row.status === 0">取消</el-button>
+            <el-button type="success" link size="small" @click="handleAudit(row)" v-if="row.status === 0" v-permission="'inventory-in:edit'">审核</el-button>
+            <el-button type="danger" link size="small" @click="handleCancel(row)" v-if="row.status === 0" v-permission="'inventory-in:edit'">取消</el-button>
           </template>
         </el-table-column>
       </el-table>

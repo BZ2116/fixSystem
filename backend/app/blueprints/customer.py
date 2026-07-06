@@ -10,6 +10,7 @@ from flask import Blueprint, Response, request
 from flask_jwt_extended import jwt_required
 
 from extensions import db
+from app.security import permission
 from app.utils import (
     export_to_excel,
     generate_code,
@@ -32,6 +33,7 @@ ALLOWED_EXCEL_MIME = {
 
 @bp.route('', methods=['GET'])
 @jwt_required()
+@permission('customer:view')
 def list_customers():
     """获取客户列表（仅 status=1，按 created_at desc 排序）。"""
     from models.customer import BaseCustomer
@@ -87,6 +89,7 @@ def list_customers():
 
 @bp.route('/<int:cid>', methods=['GET'])
 @jwt_required()
+@permission('customer:view')
 def get_customer(cid):
     """获取客户详情。"""
     from models.customer import BaseCustomer
@@ -101,6 +104,7 @@ def get_customer(cid):
 
 @bp.route('', methods=['POST'])
 @jwt_required()
+@permission('customer:add')
 def create_customer():
     """创建客户（自动生成 customer_code 和 pinyin_code）。"""
     from models.customer import BaseCustomer
@@ -140,6 +144,7 @@ def create_customer():
 
 @bp.route('/<int:cid>', methods=['PUT'])
 @jwt_required()
+@permission('customer:edit')
 def update_customer(cid):
     """更新客户。"""
     from models.customer import BaseCustomer
@@ -165,6 +170,7 @@ def update_customer(cid):
 
 @bp.route('/<int:cid>', methods=['DELETE'])
 @jwt_required()
+@permission('customer:delete')
 def delete_customer(cid):
     """软删除客户（status=0）。"""
     from models.customer import BaseCustomer
@@ -180,6 +186,7 @@ def delete_customer(cid):
 
 @bp.route('/export', methods=['GET'])
 @jwt_required()
+@permission('customer:view')
 def export_customers():
     """导出客户 Excel。"""
     from models.customer import BaseCustomer
@@ -219,6 +226,7 @@ def export_customers():
 
 @bp.route('/import', methods=['POST'])
 @jwt_required()
+@permission('customer:add')
 def import_customers():
     """导入客户 Excel（带白名单校验 + 逐行错误收集）。"""
     from models.customer import BaseCustomer
@@ -315,6 +323,7 @@ def import_customers():
 
 @bp.route('/batch-delete', methods=['POST'])
 @jwt_required()
+@permission('customer:delete')
 def batch_delete_customers():
     """批量删除客户（硬删除，与单条软删除保持原行为差异）。"""
     from models.customer import BaseCustomer

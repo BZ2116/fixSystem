@@ -33,7 +33,7 @@ import openpyxl
 
 from extensions import db
 from app.utils import to_dict
-from app.security import get_current_user_id
+from app.security import get_current_user_id, permission
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ def _get_current_user_name():
 # ============================================
 
 @bp.route('/api/finance/accounts', methods=['GET'])
-@jwt_required()
+@permission('finance:view')
 def get_finance_accounts():
     """获取财务账户列表"""
     from models.finance.account import FinanceAccount
@@ -80,7 +80,7 @@ def get_finance_accounts():
 
 
 @bp.route('/api/finance/accounts', methods=['POST'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:edit')
 def create_finance_account():
     """创建财务账户"""
     from models.finance.account import FinanceAccount
@@ -102,7 +102,7 @@ def create_finance_account():
 
 
 @bp.route('/api/finance/accounts/<int:id>', methods=['PUT'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:edit')
 def update_finance_account(id):
     """更新财务账户"""
     from models.finance.account import FinanceAccount
@@ -122,7 +122,7 @@ def update_finance_account(id):
 
 
 @bp.route('/api/finance/accounts/<int:id>', methods=['DELETE'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:edit')
 def delete_finance_account(id):
     """删除财务账户"""
     from models.finance.account import FinanceAccount
@@ -138,7 +138,7 @@ def delete_finance_account(id):
 
 
 @bp.route('/api/finance/accounts/transfer', methods=['POST'])
-@jwt_required()
+@permission('finance:view', 'finance-payment:edit', 'finance-receipt:edit')
 def transfer_finance_account():
     """账户转账"""
     from flask_jwt_extended import get_jwt_identity
@@ -249,7 +249,7 @@ def transfer_finance_account():
 
 
 @bp.route('/api/finance/accounts/<int:id>/adjust', methods=['POST'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:edit')
 def adjust_finance_account(id):
     """余额调整（盘盈/盘亏）"""
     from flask_jwt_extended import get_jwt_identity
@@ -332,7 +332,7 @@ def adjust_finance_account(id):
 # ============================================
 
 @bp.route('/api/finance/records', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:view', 'finance-payable:view')
 def get_finance_records():
     """获取财务流水"""
     from models.finance.account import FinanceRecord, FinanceReceivable, FinancePayable
@@ -425,7 +425,7 @@ def get_finance_records():
 
 
 @bp.route('/api/finance/records/enhanced', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:view', 'finance-payable:view')
 def get_finance_records_enhanced():
     """增强版流水查询"""
     from models.finance.account import FinanceRecord, FinanceAccount
@@ -531,7 +531,7 @@ def get_finance_records_enhanced():
 # ============================================
 
 @bp.route('/api/finance/receivables', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:view')
 def get_receivables():
     """应收账款列表"""
     from models.finance.account import FinanceReceivable
@@ -603,7 +603,7 @@ def get_receivables():
 
 
 @bp.route('/api/finance/receivables/<int:id>', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:view')
 def get_receivable(id):
     """应收账款详情"""
     from models.finance.account import FinanceReceivable
@@ -638,7 +638,7 @@ def get_receivable(id):
 
 
 @bp.route('/api/finance/receivables/<int:id>/receive', methods=['POST'])
-@jwt_required()
+@permission('finance:view', 'finance-receipt:edit')
 def receive_receivable(id):
     """收款核销"""
     from flask_jwt_extended import get_jwt_identity
@@ -706,7 +706,7 @@ def receive_receivable(id):
 
 
 @bp.route('/api/finance/receivables/export', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:view')
 def export_receivables():
     """导出应收账款"""
     from models.finance.account import FinanceReceivable
@@ -780,7 +780,7 @@ def export_receivables():
 
 
 @bp.route('/api/finance/receivables/batch-receive', methods=['POST'])
-@jwt_required()
+@permission('finance:view', 'finance-receipt:edit')
 def batch_receive_receivables():
     """批量收款"""
     from flask_jwt_extended import get_jwt_identity
@@ -897,7 +897,7 @@ def batch_receive_receivables():
 
 
 @bp.route('/api/finance/receivables/<int:id>/print', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:view')
 def print_receivable(id):
     """应收账款打印数据"""
     from models.finance.account import FinanceReceivable, FinanceRecord
@@ -964,7 +964,7 @@ def print_receivable(id):
 
 
 @bp.route('/api/finance/receivables/summary', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:view', 'finance-statistics:view')
 def receivables_summary():
     """应收统计汇总"""
     from models.finance.account import FinanceReceivable, FinanceRecord
@@ -1027,7 +1027,7 @@ def receivables_summary():
 # ============================================
 
 @bp.route('/api/finance/payables', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-payable:view')
 def get_payables():
     """应付账款列表"""
     from models.finance.account import FinancePayable
@@ -1099,7 +1099,7 @@ def get_payables():
 
 
 @bp.route('/api/finance/payables/<int:id>', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-payable:view')
 def get_payable(id):
     """应付账款详情"""
     from models.finance.account import FinancePayable
@@ -1134,7 +1134,7 @@ def get_payable(id):
 
 
 @bp.route('/api/finance/payables/<int:id>/pay', methods=['POST'])
-@jwt_required()
+@permission('finance:view', 'finance-payment:edit')
 def pay_payable(id):
     """付款核销"""
     from flask_jwt_extended import get_jwt_identity
@@ -1202,7 +1202,7 @@ def pay_payable(id):
 
 
 @bp.route('/api/finance/payables/export', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-payable:view')
 def export_payables():
     """导出应付账款"""
     from models.finance.account import FinancePayable
@@ -1276,7 +1276,7 @@ def export_payables():
 
 
 @bp.route('/api/finance/payables/batch-pay', methods=['POST'])
-@jwt_required()
+@permission('finance:view', 'finance-payment:edit')
 def batch_pay_payables():
     """批量付款"""
     from flask_jwt_extended import get_jwt_identity
@@ -1393,7 +1393,7 @@ def batch_pay_payables():
 
 
 @bp.route('/api/finance/payables/<int:id>/print', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-payable:view')
 def print_payable(id):
     """应付账款打印数据"""
     from models.finance.account import FinancePayable, FinanceRecord
@@ -1460,7 +1460,7 @@ def print_payable(id):
 
 
 @bp.route('/api/finance/payables/summary', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-payable:view', 'finance-statistics:view')
 def payables_summary():
     """应付统计汇总"""
     from models.finance.account import FinancePayable, FinanceRecord
@@ -1523,7 +1523,7 @@ def payables_summary():
 # ============================================
 
 @bp.route('/api/invoices', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:view')
 def get_invoices():
     """获取发票列表"""
     from models.finance.account import FinanceInvoice
@@ -1567,7 +1567,7 @@ def get_invoices():
 
 
 @bp.route('/api/invoices/<int:id>', methods=['GET'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:view')
 def get_invoice(id):
     """获取发票详情"""
     from models.finance.account import FinanceInvoice
@@ -1580,7 +1580,7 @@ def get_invoice(id):
 
 
 @bp.route('/api/invoices', methods=['POST'])
-@jwt_required()
+@permission('finance:view', 'finance-receivable:edit')
 def create_invoice():
     """创建发票"""
     from flask_jwt_extended import get_jwt_identity

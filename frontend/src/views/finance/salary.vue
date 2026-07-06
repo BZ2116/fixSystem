@@ -99,7 +99,7 @@
 
     <!-- 操作按钮 -->
     <div class="toolbar">
-      <el-button type="primary" @click="handleAdd">
+      <el-button type="primary" v-permission="'finance-salary:add'" @click="handleAdd">
         <el-icon><Plus /></el-icon>新增工资单
       </el-button>
       <el-button type="success" :disabled="selectedRows.length === 0" @click="handleBatchPay">
@@ -175,7 +175,7 @@
       </el-table-column>
       <el-table-column label="操作" width="180" fixed="right">
         <template #default="{ row }">
-          <el-button v-if="row.status === 0" type="primary" link @click="handleEdit(row)">
+          <el-button v-if="row.status === 0" type="primary" link v-permission="'finance-salary:edit'" @click="handleEdit(row)">
             编辑
           </el-button>
           <el-button v-if="row.status === 0" type="success" link @click="handlePay(row)">

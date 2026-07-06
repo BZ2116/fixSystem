@@ -178,7 +178,8 @@ def get_workorders():
     """获取工单列表 - 支持多条件筛选和分页"""
     try:
         from models.workorder import WorkOrder
-        from models.system import SysUser, SysRole
+        from app.services.permission_helpers import filter_visible_workorders
+        from flask_jwt_extended import get_jwt
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 20, type=int)
@@ -193,14 +194,8 @@ def get_workorders():
         max_amount = request.args.get('max_amount', type=float)
 
         query = WorkOrder.query
-
-        # 权限：工程师仅查看个人工单
-        user_id = get_jwt_identity()
-        current_user = SysUser.query.get(user_id)
-        if current_user and current_user.role_id:
-            role = SysRole.query.get(current_user.role_id)
-            if role and 'engineer' in (role.role_code or '').lower():
-                query = query.filter(WorkOrder.assigned_user_id == user_id)
+        # 权限：技师仅查看自己 assigned 的工单；admin/finance/warehouse 查全部
+        query = filter_visible_workorders(query, get_jwt())
 
         if keyword:
             query = query.filter(
@@ -285,10 +280,17 @@ def get_workorder(id):
             WorkOrder, WorkOrderPart, WorkOrderLog, WorkOrderQuoteItem,
             WorkOrderExtend, WoCustomerPart, WoDynamicField, WoSubType,
         )
+        from app.services.permission_helpers import assert_can_view_workorder
+        from flask_jwt_extended import get_jwt
 
         order = WorkOrder.query.get(id)
         if not order:
             return jsonify({'code': 404, 'message': '工单不存在'}), 404
+
+        # ownership 校验
+        err = assert_can_view_workorder(order, get_jwt())
+        if err is not None:
+            return err
 
         parts = WorkOrderPart.query.filter_by(wo_id=id).all()
         logs = WorkOrderLog.query.filter_by(wo_id=id).order_by(WorkOrderLog.created_at.desc()).all()
@@ -631,10 +633,17 @@ def update_workorder(id):
     """更新工单"""
     try:
         from models.workorder import WorkOrder, WorkOrderExtend, WoDynamicField
+        from app.services.permission_helpers import assert_can_modify_workorder
+        from flask_jwt_extended import get_jwt
 
         order = WorkOrder.query.get(id)
         if not order:
             return jsonify({'code': 404, 'message': '工单不存在'}), 404
+
+        # ownership 校验
+        err = assert_can_modify_workorder(order, get_jwt(), action='edit')
+        if err is not None:
+            return err
 
         data = request.get_json()
         user_id = get_jwt_identity()
@@ -771,9 +780,15 @@ def delete_workorder(id):
             WorkOrder, WorkOrderPart, WorkOrderQuoteItem, WorkOrderLog,
             WorkOrderExtend, WoCustomerPart,
         )
+        from app.services.permission_helpers import assert_can_modify_workorder
+        from flask_jwt_extended import get_jwt
         order = WorkOrder.query.get(id)
         if not order:
             return jsonify({'code': 404, 'message': '工单不存在'}), 404
+        # ownership + 权限校验（技师无 workorder:delete 权限，应被 403）
+        err = assert_can_modify_workorder(order, get_jwt(), action='delete')
+        if err is not None:
+            return err
         if order.status not in (0, 7):
             return jsonify({'code': 400, 'message': f'当前状态为【{WO_STATUS_MAP.get(order.status, "未知")}】，只有待派单或已取消的工单才能删除'}), 400
 

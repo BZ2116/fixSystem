@@ -5,24 +5,24 @@
         <div class="card-header">
           <span>商品管理</span>
           <div>
-            <el-button type="success" :icon="Upload" @click="handleImport" style="margin-right: 10px">导入</el-button>
-            <el-button type="warning" :icon="Download" @click="handleExport" style="margin-right: 10px">导出</el-button>
+            <el-button v-permission="'product:add'" type="success" :icon="Upload" @click="handleImport" style="margin-right: 10px">导入</el-button>
+            <el-button v-permission="'product:view'" type="warning" :icon="Download" @click="handleExport" style="margin-right: 10px">导出</el-button>
             <el-button type="success" @click="handlePrintBarcode" style="margin-right: 10px">打印条码</el-button>
-            <el-button type="primary" :icon="Plus" @click="handleAdd">新增商品</el-button>
+            <el-button v-permission="'product:add'" type="primary" :icon="Plus" @click="handleAdd">新增商品</el-button>
           </div>
         </div>
         <!-- 批量操作工具栏 -->
         <div v-if="selectedProducts.length > 0" class="batch-toolbar">
-          <el-dropdown split-button type="primary" @click="handleBatchCategory">
+          <el-dropdown v-permission="'product:edit'" split-button type="primary" @click="handleBatchCategory">
             批量修改分类
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="handleBatchPrice">批量价格</el-dropdown-item>
+                <el-dropdown-item v-permission="'product:edit'" @click="handleBatchPrice">批量价格</el-dropdown-item>
                 <el-dropdown-item @click="handleBatchStockWarning">批量库存预警</el-dropdown-item>
                 <el-dropdown-item @click="handleBatchSort">批量排序</el-dropdown-item>
-                <el-dropdown-item divided @click="handleBatchEnable">批量启用</el-dropdown-item>
-                <el-dropdown-item @click="handleBatchDisable">批量禁用</el-dropdown-item>
-                <el-dropdown-item divided @click="handleBatchDelete" style="color: #f56c6c">批量删除</el-dropdown-item>
+                <el-dropdown-item divided v-permission="'product:edit'" @click="handleBatchEnable">批量启用</el-dropdown-item>
+                <el-dropdown-item v-permission="'product:edit'" @click="handleBatchDisable">批量禁用</el-dropdown-item>
+                <el-dropdown-item divided v-permission="'product:delete'" @click="handleBatchDelete" style="color: #f56c6c">批量删除</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -76,9 +76,9 @@
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">
-            <el-button type="primary" link :icon="Edit" @click="handleEdit(row)">编辑</el-button>
+            <el-button v-permission="'product:edit'" type="primary" link :icon="Edit" @click="handleEdit(row)">编辑</el-button>
             <el-button type="success" link @click="handlePrintSingle(row)">打印条码</el-button>
-            <el-button type="danger" link :icon="Delete" @click="handleDelete(row)">删除</el-button>
+            <el-button v-permission="'product:delete'" type="danger" link :icon="Delete" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

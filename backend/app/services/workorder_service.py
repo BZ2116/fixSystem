@@ -91,17 +91,6 @@ def change_workorder_status(order, new_status, content, operator_id, operator_na
         if user_obj:
             order.assigned_user_name = user_obj.real_name or user_obj.username
         order.assigned_time = datetime.now()
-    elif new_status == 8:  # 待结算
-        from models.workorder import WorkOrderPart
-        parts = WorkOrderPart.query.filter_by(wo_id=order.id, status=1).all()
-        parts_cost = sum(float(p.total_price or 0) for p in parts)
-        order.parts_cost = parts_cost
-        order.total_cost = (
-            float(order.labor_cost or 0) + parts_cost
-            + float(order.material_cost or 0) + float(order.transport_cost or 0)
-        )
-    elif new_status == 9:  # 已完成
-        order.actual_time = datetime.now()
 
     add_wo_log(
         wo_id=order.id,
@@ -334,7 +323,15 @@ def settle_workorder(order, data, user_id, user_name):
         used_qty = float(
             data.get(f'used_qty_{part.id}', part.used_quantity or part.quantity or 0)
         )
-        unused_qty = float(part.quantity or 0) - used_qty
+        # 截断：used_qty 不能超过 part.quantity（工单现场操作宽松处理）
+        max_qty = float(part.quantity or 0)
+        if used_qty > max_qty:
+            logger.warning(
+                'settle: used_qty=%.2f 超过 part.quantity=%.2f, 截断',
+                used_qty, max_qty,
+            )
+            used_qty = max_qty
+        unused_qty = max_qty - used_qty
         part.used_quantity = used_qty
 
         if used_qty > 0:
@@ -350,14 +347,47 @@ def settle_workorder(order, data, user_id, user_name):
 
         if unused_qty > 0:
             part.status = 2  # 已退
-            if part.is_own == 1 and part.product_id:
+            # 释放锁定的库存：按 InventoryOut.related_order_id 匹配工单，
+            # 释放对应 product_id 的 frozen_quantity。不再改 Product.stock
+            # （避免双重入账；真实出库在 out.audit 时已扣减 stock.quantity）
+            if part.product_id:
                 try:
-                    from models.product import ProductInfo as Product
-                    product = Product.query.get(part.product_id)
-                    if product:
-                        product.stock = float(product.stock or 0) + unused_qty
+                    from models.inventory import (
+                        InventoryOut, InventoryOutItem, InventoryStock,
+                    )
+                    out_items = (
+                        InventoryOutItem.query
+                        .join(InventoryOut, InventoryOutItem.out_id == InventoryOut.id)
+                        .filter(
+                            InventoryOut.related_order_id == order.id,
+                            InventoryOutItem.product_id == part.product_id,
+                        )
+                        .all()
+                    )
+                    released_total = 0.0
+                    for oi in out_items:
+                        # 释放该出库明细中未用部分
+                        release_qty = min(float(oi.quantity or 0), unused_qty - released_total)
+                        if release_qty <= 0:
+                            break
+                        stock = (
+                            InventoryStock.query
+                            .filter_by(product_id=oi.product_id)
+                            .first()
+                        )
+                        if stock:
+                            stock.frozen_quantity = max(
+                                0.0, float(stock.frozen_quantity or 0) - release_qty
+                            )
+                        released_total += release_qty
+                    if released_total == 0:
+                        logger.warning(
+                            'settle: 配件 %s 未找到对应的 InventoryOut，'
+                            'frozen_quantity 未释放',
+                            part.product_id,
+                        )
                 except Exception as e:
-                    logger.warning(f'退回库存失败: {str(e)}')
+                    logger.warning('释放冻结库存失败: %s', str(e))
             unused_parts.append({
                 'product_name': part.product_name,
                 'specification': part.specification,
@@ -601,27 +631,27 @@ def workorder_quote(order, data, user_id, user_name):
 # ============================================================
 
 def cancel_workorder(order, reason, user_id, user_name):
-    """取消工单。状态 9(已结算) / 10(?) 不允许取消（与原 app.py 一致）。"""
+    """取消工单。已完成(6) / 已取消(7) 不允许取消。"""
     from app.blueprints.workorder import WO_STATUS_MAP
 
-    if order.status in (9, 10):
+    if order.status in (6, 7):
         raise ValueError(
             f'当前状态【{WO_STATUS_MAP.get(order.status, "未知")}】不允许取消'
         )
 
     old_status = order.status
-    order.status = 10
+    order.status = 7
     order.status_name = '已取消'
     add_wo_log(
         wo_id=order.id,
         action='取消工单',
         old_status=old_status,
-        new_status=10,
+        new_status=7,
         content=f'取消工单，原因：{reason}' if reason else '取消工单',
         operator_id=user_id,
         operator_name=user_name,
     )
-    return {'status': 10, 'status_text': '已取消'}
+    return {'status': 7, 'status_text': '已取消'}
 
 
 # ============================================================

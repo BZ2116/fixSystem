@@ -15,7 +15,7 @@
           </el-select>
         </el-col>
         <el-col :span="14" style="text-align: right;">
-          <el-button type="primary" @click="handleAdd">新增仓库</el-button>
+          <el-button type="primary" @click="handleAdd" v-permission="'warehouse:add'">新增仓库</el-button>
         </el-col>
       </el-row>
     </el-card>
@@ -37,10 +37,10 @@
         <el-table-column prop="created_at" label="创建时间" width="170" />
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link size="small" @click="handleEdit(row)">编辑</el-button>
+            <el-button type="primary" link size="small" @click="handleEdit(row)" v-permission="'warehouse:edit'">编辑</el-button>
             <el-popconfirm title="确定删除该仓库？" @confirm="handleDelete(row.id)">
               <template #reference>
-                <el-button type="danger" link size="small">删除</el-button>
+                <el-button type="danger" link size="small" v-permission="'warehouse:delete'">删除</el-button>
               </template>
             </el-popconfirm>
           </template>

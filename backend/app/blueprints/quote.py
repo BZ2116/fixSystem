@@ -19,6 +19,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from extensions import db
+from app.security import permission
 from app.utils import generate_code, to_dict
 
 bp = Blueprint('quote', __name__, url_prefix='/api/quotes')
@@ -40,7 +41,7 @@ QUOTE_STATUS_MAP = {
 # ============================================
 
 @bp.route('', methods=['GET'])
-@jwt_required()
+@permission('quote:view')
 def list_quotes():
     """获取报价单列表。"""
     from models.quote import QuoteOrder
@@ -92,7 +93,7 @@ def list_quotes():
 
 
 @bp.route('/<int:oid>', methods=['GET'])
-@jwt_required()
+@permission('quote:view')
 def get_quote(oid):
     """获取报价单详情。"""
     from models.quote import QuoteOrder, QuoteOrderItem
@@ -111,7 +112,7 @@ def get_quote(oid):
 
 
 @bp.route('', methods=['POST'])
-@jwt_required()
+@permission('quote:add')
 def create_quote():
     """创建报价单。"""
     from models.quote import QuoteOrder, QuoteOrderItem
@@ -172,7 +173,7 @@ def create_quote():
 
 
 @bp.route('/<int:oid>', methods=['PUT'])
-@jwt_required()
+@permission('quote:edit')
 def update_quote(oid):
     """更新报价单。"""
     from models.quote import QuoteOrder, QuoteOrderItem
@@ -220,7 +221,7 @@ def update_quote(oid):
 
 
 @bp.route('/<int:oid>', methods=['DELETE'])
-@jwt_required()
+@permission('quote:delete')
 def delete_quote(oid):
     """删除报价单（软删除 status=2）。"""
     from models.quote import QuoteOrder
@@ -242,7 +243,7 @@ def delete_quote(oid):
 # ============================================
 
 @bp.route('/<int:oid>/confirm', methods=['POST'])
-@jwt_required()
+@permission('quote:edit')
 def confirm_quote(oid):
     """确认报价单（status 0 → 1）。"""
     from models.quote import QuoteOrder
@@ -261,7 +262,7 @@ def confirm_quote(oid):
 
 
 @bp.route('/<int:oid>/to-workorder', methods=['POST'])
-@jwt_required()
+@permission('quote:edit')
 def quote_to_workorder(oid):
     """报价单转工单（status 1 → 3）。"""
     from models.quote import QuoteOrder
@@ -308,7 +309,7 @@ def quote_to_workorder(oid):
 
 
 @bp.route('/<int:oid>/to-receive', methods=['POST'])
-@jwt_required()
+@permission('quote:edit')
 def quote_to_receive(oid):
     """报价单转接件单（status 1 → 4）。"""
     from models.quote import QuoteOrder
@@ -354,7 +355,7 @@ def quote_to_receive(oid):
 
 
 @bp.route('/<int:oid>/to-sales', methods=['POST'])
-@jwt_required()
+@permission('quote:edit', 'sales:add')
 def quote_to_sales(oid):
     """报价单转销售单（status 1 → 5，创建 InventoryOut + InventoryOutItem）。"""
     from models.quote import QuoteOrder, QuoteOrderItem
@@ -422,7 +423,7 @@ def quote_to_sales(oid):
 # ============================================
 
 @bp.route('/export', methods=['GET'])
-@jwt_required()
+@permission('quote:export')
 def export_quotes():
     """导出报价单 Excel（保留原 app.py 行为）。"""
     import logging

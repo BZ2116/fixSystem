@@ -3,12 +3,14 @@ from flask import Blueprint
 from flask_jwt_extended import jwt_required
 
 from app.utils import ok
+from app.security import permission
 
 bp = Blueprint('users_admin', __name__, url_prefix='/api/users')
 
 
 @bp.route('', methods=['GET'])
 @jwt_required()
+@permission('settings-users:view')
 def get_users():
     """获取用户列表（未删除）。"""
     from models.system import SysUser

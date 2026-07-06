@@ -22,7 +22,7 @@ import logging
 from datetime import datetime
 
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from extensions import db
 from app.services.workorder_service import (
@@ -34,6 +34,7 @@ from app.services.workorder_service import (
     cancel_workorder,
     complete_workorder,
 )
+from app.services.permission_helpers import assert_can_modify_workorder
 from app.blueprints.workorder import (
     WO_STATUS_MAP,
     _get_current_user_name,
@@ -58,6 +59,10 @@ def change_status(id):
         order = WorkOrder.query.get(id)
         if not order:
             return jsonify({'code': 404, 'message': '工单不存在'}), 404
+
+        err = assert_can_modify_workorder(order, get_jwt(), action='status')
+        if err:
+            return err
 
         data = request.get_json()
         user_id = get_jwt_identity()
@@ -229,6 +234,10 @@ def allocate_parts_route(id):
         if not order:
             return jsonify({'code': 404, 'message': '工单不存在'}), 404
 
+        err = assert_can_modify_workorder(order, get_jwt(), action='allocate')
+        if err:
+            return err
+
         data = request.get_json()
         user_id = get_jwt_identity()
         user_name = _get_current_user_name()
@@ -260,6 +269,10 @@ def finish_workorder(id):
         if not order:
             return jsonify({'code': 404, 'message': '工单不存在'}), 404
 
+        err = assert_can_modify_workorder(order, get_jwt(), action='finish')
+        if err:
+            return err
+
         data = request.get_json()
         user_id = get_jwt_identity()
         user_name = _get_current_user_name()
@@ -290,6 +303,10 @@ def settle_workorder_route(id):
         order = WorkOrder.query.get(id)
         if not order:
             return jsonify({'code': 404, 'message': '工单不存在'}), 404
+
+        err = assert_can_modify_workorder(order, get_jwt(), action='settle')
+        if err:
+            return err
 
         data = request.get_json()
         user_id = get_jwt_identity()
@@ -324,6 +341,10 @@ def workorder_to_quote(id):
         order = WorkOrder.query.get(id)
         if not order:
             return jsonify({'code': 404, 'message': '工单不存在'}), 404
+
+        err = assert_can_modify_workorder(order, get_jwt(), action='quote')
+        if err:
+            return err
 
         data = request.get_json() if request.is_json else {}
         user_id = get_jwt_identity()
@@ -491,6 +512,10 @@ def workorder_to_sales(id):
         if not order:
             return jsonify({'code': 404, 'message': '工单不存在'}), 404
 
+        err = assert_can_modify_workorder(order, get_jwt(), action='sales')
+        if err:
+            return err
+
         data = request.get_json() if request.is_json else {}
         user_id = get_jwt_identity()
         user_name = _get_current_user_name()
@@ -640,6 +665,10 @@ def cancel_workorder_route(id):
         order = WorkOrder.query.get(id)
         if not order:
             return jsonify({'code': 404, 'message': '工单不存在'}), 404
+
+        err = assert_can_modify_workorder(order, get_jwt(), action='cancel')
+        if err:
+            return err
 
         data = request.get_json() if request.is_json else {}
         user_id = get_jwt_identity()
